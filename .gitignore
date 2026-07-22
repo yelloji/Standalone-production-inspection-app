@@ -1,0 +1,54 @@
+# Local transfer/reference bundle (never commit)
+/brake-disc-production-transfer-*/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Node / Electron
+node_modules/
+frontend/build/
+frontend/dist/
+dist/
+dist-electron/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Production data and generated artifacts
+/data/
+/models/
+/incoming/
+/processing/
+/completed/
+/failed/
+/logs/
+/temp/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.tif
+*.tiff
+*.onnx
+*.engine
+*.trt
+*.pt
+*.pth
+
+# Editors / operating system
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
