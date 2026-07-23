@@ -38,6 +38,18 @@ class MetadataRepository:
         row = self._session.get(ModelBundleRow, model_bundle_id)
         return _model_bundle_metadata(row) if row is not None else None
 
+    def get_active_model_bundle(self) -> ModelBundleMetadata | None:
+        statement = select(ModelBundleRow).where(ModelBundleRow.state == "active")
+        row = self._session.scalar(statement)
+        return _model_bundle_metadata(row) if row is not None else None
+
+    def set_model_bundle_state(self, model_bundle_id: str, state: str) -> None:
+        row = self._session.get(ModelBundleRow, model_bundle_id)
+        if row is None:
+            raise KeyError(f"unknown model bundle: {model_bundle_id}")
+        row.state = state
+        self._session.flush()
+
     def add_pipeline_snapshot(self, value: PipelineSnapshotMetadata) -> None:
         self._session.add(PipelineSnapshotRow(**asdict(value)))
         self._session.flush()

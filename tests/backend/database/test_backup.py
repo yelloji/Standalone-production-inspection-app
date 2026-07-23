@@ -48,7 +48,7 @@ def test_backup_and_restore_recover_committed_state(
             repository = MetadataRepository(session)
             assert repository.get_model_bundle("before-backup") is not None
             assert repository.get_model_bundle("after-backup") is None
-        assert current_revision(restored_engine) == "0001_metadata_foundation"
+        assert current_revision(restored_engine) == "0002_single_active_model"
     finally:
         restored_engine.dispose()
 

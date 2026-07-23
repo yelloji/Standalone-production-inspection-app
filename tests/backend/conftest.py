@@ -1,4 +1,4 @@
-"""Real isolated SQLite fixtures for database tests."""
+"""Shared real isolated SQLite fixtures for backend tests."""
 
 from collections.abc import Generator
 from pathlib import Path

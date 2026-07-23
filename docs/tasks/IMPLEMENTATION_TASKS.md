@@ -65,6 +65,13 @@ Approval recorded on 2026-07-22:
 - The user confirmed that they will guide later production features incrementally.
 - Before and after every task, progress and results must be explained in simple language unless the user requests technical detail.
 - Uncertainty must be raised with the user before making a material design assumption.
+- On 2026-07-23, the user authorized autonomous implementation, full testing,
+  documentation updates, focused commits, and pushes for Tasks 4 through 14.
+- Each of Tasks 4 through 14 must still pass its own complete gate before its
+  commit; commits use professional task-specific messages and contain no
+  assistant attribution.
+- After Task 15 is implemented and internally tested, stop for the user's
+  hands-on UI and workflow review before beginning Task 16.
 
 ### Task 1 - Repository and Tooling Foundation
 
@@ -175,7 +182,7 @@ Result recorded on 2026-07-23:
 
 ### Task 4 - Manual ONNX Bundle Import
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -183,6 +190,32 @@ Work:
 - checksum/schema/ONNX IO validation;
 - test-vector/parity evidence;
 - model lifecycle and rollback-safe activation.
+
+Gate: valid directory/ZIP import, rejection, checksum, schema, ONNX graph/IO,
+parity-evidence, registration, activation, rollback, and full regression tests
+pass.
+
+Result recorded on 2026-07-23:
+
+- added strict version-1 schemas for model, classes, preprocessing,
+  postprocessing, SAHI, validation evidence, test vectors, and checksums;
+- added application-controlled directory/ZIP staging with traversal, absolute
+  path, drive path, links, duplicate/case collision, encryption, file-count,
+  total-size, and compression-ratio protections;
+- added complete declared-file SHA-256 verification and rejection of missing
+  or undeclared payloads;
+- added ONNX graph checker, external-data rejection, opset verification, and
+  exact input/output name, type, rank, and dimension comparison;
+- enforced NCHW `1312 x 1312` spatial input while leaving CUDA execution and
+  real test-vector inference for Task 10;
+- added atomic application-owned registration, a single-active-model database
+  guarantee, and explicit approval/activation with transactional rollback to a
+  preserved prior approved model;
+- passed 67 backend tests using generated ONNX files plus the full Python,
+  frontend, Electron, build, dependency, security, portability, isolation,
+  archive-safety, and Git hygiene gates;
+- no API endpoint, UI, inference worker, `.pt` support, external model
+  dependency, or model binary was committed.
 
 ### Task 5 - Offline Acquisition Intake
 
@@ -419,4 +452,5 @@ Work:
 | 2026-07-22 | Task 0 - Documentation foundation | COMMITTED | 9 linked documents; no application code; transfer bundle ignored | `8c3c3b6` |
 | 2026-07-23 | Task 1 - Repository and tooling foundation | COMMITTED | Portable backend/frontend/Electron foundation; full quality and runtime smoke checks passed | `80095fd` |
 | 2026-07-23 | Task 2 - Core contracts and configuration | COMMITTED | Portable path/configuration service and strict versioned contracts; complete regression gate passed | `326fad4` |
-| 2026-07-23 | Task 3 - Database foundation | COMMITTED | Independent SQLite metadata, migrations, transactions, indexes, backup/recovery; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 3 - Database foundation | COMMITTED | Independent SQLite metadata, migrations, transactions, indexes, backup/recovery; full regression gate passed | `247475c` |
+| 2026-07-23 | Task 4 - Manual ONNX bundle import | COMMITTED | Safe staged import, strict schemas/checksums/ONNX validation, and rollback-safe activation; full regression gate passed | This focused task commit |

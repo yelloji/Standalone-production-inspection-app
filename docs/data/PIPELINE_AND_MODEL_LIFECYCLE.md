@@ -39,7 +39,7 @@ Only a deliberate activation action changes the active version. Editing an appro
 
 ## Model Bundle
 
-Manual import package must eventually contain:
+The version-1 manual import package contains:
 
 ```text
 model.onnx
@@ -53,7 +53,8 @@ checksums.json
 test_vectors/
 ```
 
-The final exact schema is defined in the contracts task.
+The authoritative schemas and safety behavior are documented in
+[Manual ONNX Bundle Import](../architecture/MODEL_BUNDLE_IMPORT.md).
 
 ## Model States
 

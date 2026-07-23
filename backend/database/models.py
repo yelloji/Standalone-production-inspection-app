@@ -13,6 +13,7 @@ from sqlalchemy import (
     MetaData,
     String,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import DateTime, TypeDecorator
@@ -73,6 +74,12 @@ class ModelBundleRow(Base):
         ),
         CheckConstraint("length(sha256) = 64", name="model_bundle_sha256_length"),
         Index("ix_model_bundles_state_created_at", "state", "created_at"),
+        Index(
+            "uq_model_bundles_single_active",
+            "state",
+            unique=True,
+            sqlite_where=text("state = 'active'"),
+        ),
     )
 
     model_bundle_id: Mapped[str] = mapped_column(String(128), primary_key=True)

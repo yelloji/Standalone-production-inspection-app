@@ -25,7 +25,7 @@ def test_migration_creates_expected_schema_and_indexes(database_engine: Engine) 
     inspector = inspect(database_engine)
 
     assert set(inspector.get_table_names()) == EXPECTED_TABLES
-    assert current_revision(database_engine) == "0001_metadata_foundation"
+    assert current_revision(database_engine) == "0002_single_active_model"
     assert {index["name"] for index in inspector.get_indexes("inspection_runs")} >= {
         "ix_inspection_runs_acquisition_id",
         "ix_inspection_runs_status_created_at",
@@ -43,7 +43,7 @@ def test_upgrade_is_idempotent_on_real_sqlite_file(
     try:
         upgrade_to_head(engine)
         upgrade_to_head(engine)
-        assert current_revision(engine) == "0001_metadata_foundation"
+        assert current_revision(engine) == "0002_single_active_model"
     finally:
         engine.dispose()
 
