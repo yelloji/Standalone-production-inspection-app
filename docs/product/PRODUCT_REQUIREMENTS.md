@@ -61,6 +61,30 @@ Production operators must not configure model, SAHI, reconstruction, storage, or
 - Structured local artifact storage.
 - Clear tests, documentation, logging, security, recovery, and packaging boundaries.
 
+### Development and production windows
+
+- Development terminals remain visible for engineering and debugging.
+- The packaged production application opens only its Electron window.
+- Backend and worker processes remain hidden in production.
+- Operator errors appear inside the Run View; terminals and stack traces are not
+  shown to production users.
+- Closing the application must shut down its backend and workers cleanly, with
+  no console or orphaned process left behind.
+
+### Portable and dynamic paths
+
+- No runtime code may depend on a developer drive, repository location, user
+  profile, or fixed installation directory.
+- Development paths resolve from the repository and explicit configuration.
+- Packaged resources resolve from the running executable/application resource
+  location.
+- Writable production data resolves beneath a configurable application data
+  root.
+- Database, model, pipeline, log, temporary, and artifact records use validated
+  relative paths beneath the approved data root.
+- Moving or installing the application in another valid location must not break
+  resource or data resolution.
+
 ## Confirmed Future Requirements
 
 - Online automatic acquisition intake from the external software.

@@ -1,0 +1,21 @@
+{
+  "name": "@standalone-production-inspection/electron",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "tsc && wait-on http-get://127.0.0.1:5173 http-get://127.0.0.1:8000/api/v1/health && electron .",
+    "build": "tsc",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.1.1",
+    "electron": "43.2.0",
+    "eslint": "10.7.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.65.0",
+    "wait-on": "9.1.0"
+  }
+}

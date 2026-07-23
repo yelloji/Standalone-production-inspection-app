@@ -148,6 +148,12 @@ The source repository contains code and tracked documentation only. Runtime data
 
 Paths are resolved and checked for containment. Production data, model binaries, databases, logs, and generated artifacts are never committed to Git.
 
+No runtime module may contain a hardcoded drive or developer workspace path.
+The composition/configuration layer supplies resource and writable data roots.
+Domain contracts persist safe relative paths, not machine-specific absolute
+paths. Development, installed, and future portable distributions use the same
+path interface with different resolved roots.
+
 ## Reliability Rules
 
 - Atomic metadata and artifact finalization.

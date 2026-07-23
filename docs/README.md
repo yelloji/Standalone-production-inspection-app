@@ -35,6 +35,7 @@ When documents conflict, use this priority:
 ### Architecture
 
 - [System Architecture](architecture/SYSTEM_ARCHITECTURE.md)
+- [Development and Runtime Foundation](architecture/DEVELOPMENT_AND_RUNTIME_FOUNDATION.md)
 - [Architecture Decisions](decisions/ARCHITECTURE_DECISIONS.md)
 
 ### User Interface

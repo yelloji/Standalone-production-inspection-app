@@ -2,11 +2,11 @@
 
 ## Document Status
 
-- Current phase: Documentation foundation
-- Current task: Task 0 - Architecture and product documentation
-- Current task status: `APPROVED`
-- Application code started: No
-- Commit created for Task 0: No
+- Current phase: Safe foundation
+- Current task: Task 1 - Repository and tooling foundation
+- Current task status: `COMMITTED`
+- Application code started: Yes, foundation only
+- Production feature code started: No
 
 ## Working Agreement
 
@@ -68,7 +68,7 @@ Approval recorded on 2026-07-22:
 
 ### Task 1 - Repository and Tooling Foundation
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -80,6 +80,26 @@ Work:
 - create only the minimal folder skeleton required by tooling.
 
 Gate: clean installation/import/build smoke checks with no production feature.
+
+Additional Task 1 gate:
+
+- tracked runtime source contains no hardcoded Windows drive/developer path;
+- Electron packaged resources resolve relative to the runtime location;
+- writable path implementation remains blocked until Task 2 defines the
+  central safe path contract.
+
+Result recorded on 2026-07-23:
+
+- pinned Python, Node, npm, frontend, Electron, and quality-tool foundations;
+- added a minimal FastAPI health boundary, typed React screen, and secure
+  Electron shell without production feature code;
+- added lint, type, unit-test, build, dependency, security-audit, and CI-ready
+  commands;
+- verified the backend health endpoint and the built UI in a real browser;
+- verified the browser at port 10000 with no console, page, or asset errors;
+- verified tracked runtime source contains no absolute developer/drive paths;
+- kept transfer data, generated outputs, environments, models, databases,
+  images, logs, and build artifacts untracked.
 
 ### Task 2 - Core Contracts and Configuration
 
@@ -351,4 +371,5 @@ Work:
 | Date | Task | Status | Result | Commit |
 |---|---|---|---|---|
 | 2026-07-22 | Initial repository README | COMMITTED | README-only root commit pushed; transfer bundle excluded | `7b0c505` |
-| 2026-07-22 | Task 0 - Documentation foundation | APPROVED | 9 linked documents; no application code; transfer bundle ignored | This focused documentation commit |
+| 2026-07-22 | Task 0 - Documentation foundation | COMMITTED | 9 linked documents; no application code; transfer bundle ignored | `8c3c3b6` |
+| 2026-07-23 | Task 1 - Repository and tooling foundation | COMMITTED | Portable backend/frontend/Electron foundation; full quality and runtime smoke checks passed | This focused foundation commit |

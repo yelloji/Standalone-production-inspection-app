@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=80,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "standalone-production-inspection-backend"
+version = "0.1.0"
+description = "Standalone brake-disc production inspection backend"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "fastapi==0.139.2",
+    "pydantic==2.13.4",
+    "uvicorn==0.51.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx2==2.7.0",
+    "mypy==1.20.2",
+    "pytest==9.1.1",
+    "ruff==0.15.22",
+]
+
+[tool.setuptools.packages.find]
+include = ["backend*"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests/backend"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+packages = ["backend"]

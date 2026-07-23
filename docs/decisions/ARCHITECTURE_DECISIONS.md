@@ -56,6 +56,29 @@
 - Decision: port pure reconstruction contracts/algorithms with tests; rebuild production ONNX/SAHI, orchestration, database, UI, and packaging.
 - Consequence: the new application preserves proven mathematics without inheriting AI Studio coupling.
 
+### ADR-010 - Independent SQLite database
+
+- Status: Accepted
+- Decision: use a new SQLite database through SQLAlchemy repository interfaces.
+- Consequence: no AI Studio database sharing; large artifacts remain files; a
+  later database provider can be added without changing domain algorithms.
+
+### ADR-011 - Visible development terminals, hidden production processes
+
+- Status: Accepted
+- Decision: development services retain visible terminals, while the packaged
+  Electron application starts backend/workers without console windows.
+- Consequence: production errors and recovery actions must be available inside
+  the application, and application shutdown owns all child processes.
+
+### ADR-012 - Portable dynamic path resolution
+
+- Status: Accepted
+- Decision: runtime code uses a central path/configuration service and safe
+  relative stored paths; no developer drive or fixed install path is allowed.
+- Consequence: development, installed, and future portable builds resolve their
+  own resource/data roots without changing domain or feature code.
+
 ## Pending Decisions
 
 - ADR-P01: Exact online connector protocol.
