@@ -3,7 +3,7 @@
 ## Document Status
 
 - Current phase: Production ONNX SAHI
-- Current task: Task 10 - Persistent ONNX GPU worker
+- Current task: Task 11 - SAHI 1312 slicing and merge
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
 - Production feature code started: Yes, reconstruction and GPU inference
@@ -454,7 +454,7 @@ Result recorded on 2026-07-23:
 
 ### Task 11 - SAHI 1312 Slicing and Merge
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -464,6 +464,33 @@ Work:
 - saved validated batch;
 - source-coordinate conversion and class-aware merge;
 - known-crack boundary tests.
+
+Result recorded on 2026-07-23:
+
+- added an immutable execution configuration enforcing `1312 x 1312` FP16
+  slices, the current 50-percent overlap, an explicitly bundle-validated batch
+  size, class count, merge threshold, and padding value;
+- added deterministic row-major 656-pixel-stride windows with far-edge
+  anchoring and proved the exact 9-by-7/63-slice plan for a `6560 x 4948`
+  production frame;
+- added bounded generator-based RGB/BGR, scale, mean, standard-deviation,
+  NCHW, and FP16 preprocessing into read-only C-contiguous in-memory batches;
+- retained a smaller valid final batch and created no temporary slice image,
+  slice path, or disk artifact;
+- added strict decoder-box contracts, padding clipping/rejection, exact source
+  coordinate conversion, source-bound clipping, and unknown slice/class
+  rejection;
+- added deterministic same-frame/same-class greedy merge using maximum
+  IoU/intersection-over-smaller overlap, union extent, maximum confidence, and
+  complete contributing-slice evidence;
+- proved known horizontal and vertical boundary cracks recover their full
+  source extent while different classes and separate defects remain distinct;
+- passed 8 focused SAHI tests and the complete Python, frontend, Electron,
+  build, dependency, security, portability, isolation, artifact, and Git
+  hygiene gates;
+- no image, tile, model, prediction artifact, decoder-specific code, database
+  change, API, UI, orchestration, transfer file, or generated output was
+  committed.
 
 ### Task 12 - Parallel Run Orchestration
 
@@ -625,4 +652,5 @@ Work:
 | 2026-07-23 | Task 7 - Modular dense/projective reconstruction | COMMITTED | Spatially held-out evidence, normalized joint 16-frame projective solve, strict pair/closure gates, and side profiles; full regression gate passed | `2add121` |
 | 2026-07-23 | Task 8 - Side-specific center completion | COMMITTED | Upper black-plate plan, lower flash detection/cyclic shared rotation, and explicit provenance policy; full regression gate passed | `cf0dae6` |
 | 2026-07-23 | Task 9 - Tiled reconstruction and artifacts | COMMITTED | Bounded uncropped rendering, BigTIFF/preview/coverage/provenance artifacts, validation, cleanup, and atomic publication; full regression gate passed | `b063fc6` |
-| 2026-07-23 | Task 10 - Persistent ONNX GPU worker | COMMITTED | Persistent fail-closed CUDA FP16 session, warm readiness, bounded batches, immutable raw outputs, and explicit provider/OOM failures; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 10 - Persistent ONNX GPU worker | COMMITTED | Persistent fail-closed CUDA FP16 session, warm readiness, bounded batches, immutable raw outputs, and explicit provider/OOM failures; full regression gate passed | `2d3b7a2` |
+| 2026-07-23 | Task 11 - SAHI 1312 slicing and merge | COMMITTED | Deterministic bounded in-memory batches, source mapping, padding rejection, and class-aware boundary-crack merge; full regression gate passed | This focused task commit |
