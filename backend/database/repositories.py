@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import asdict
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -13,6 +14,8 @@ from backend.database.models import (
     InspectionRunRow,
     ModelBundleRow,
     PipelineSnapshotRow,
+    RunControlRow,
+    RunStageCheckpointRow,
     SourceFrameRow,
 )
 from backend.database.records import (
@@ -20,6 +23,8 @@ from backend.database.records import (
     InspectionRunMetadata,
     ModelBundleMetadata,
     PipelineSnapshotMetadata,
+    RunControlMetadata,
+    RunStageCheckpointMetadata,
     SourceFrameMetadata,
 )
 
@@ -64,6 +69,16 @@ class MetadataRepository:
     def add_run(self, value: InspectionRunMetadata) -> None:
         self._session.add(InspectionRunRow(**asdict(value)))
         self._session.flush()
+        self._session.add(
+            RunControlRow(
+                run_id=value.run_id,
+                cancellation_requested=False,
+                lease_owner=None,
+                lease_expires_at=None,
+                updated_at=value.created_at,
+            )
+        )
+        self._session.flush()
 
     def get_run(self, run_id: str) -> InspectionRunMetadata | None:
         row = self._session.get(InspectionRunRow, run_id)
@@ -92,6 +107,128 @@ class MetadataRepository:
             .order_by(ArtifactRow.created_at, ArtifactRow.artifact_id)
         )
         return tuple(_artifact_metadata(row) for row in self._session.scalars(statement))
+
+    def get_run_control(self, run_id: str) -> RunControlMetadata | None:
+        row = self._session.get(RunControlRow, run_id)
+        return _run_control_metadata(row) if row is not None else None
+
+    def add_run_control(self, value: RunControlMetadata) -> None:
+        self._session.add(RunControlRow(**asdict(value)))
+        self._session.flush()
+
+    def set_cancellation_requested(
+        self,
+        run_id: str,
+        requested: bool,
+        updated_at: datetime,
+    ) -> None:
+        row = self._session.get(RunControlRow, run_id)
+        if row is None:
+            raise KeyError(f"unknown run control: {run_id}")
+        row.cancellation_requested = requested
+        row.updated_at = updated_at
+        self._session.flush()
+
+    def try_acquire_run_lease(
+        self,
+        run_id: str,
+        owner: str,
+        now: datetime,
+        expires_at: datetime,
+    ) -> bool:
+        row = self._session.get(RunControlRow, run_id)
+        if row is None:
+            raise KeyError(f"unknown run control: {run_id}")
+        if (
+            row.lease_owner is not None
+            and row.lease_owner != owner
+            and row.lease_expires_at is not None
+            and row.lease_expires_at > now
+        ):
+            return False
+        row.lease_owner = owner
+        row.lease_expires_at = expires_at
+        row.updated_at = now
+        self._session.flush()
+        return True
+
+    def renew_run_lease(
+        self,
+        run_id: str,
+        owner: str,
+        now: datetime,
+        expires_at: datetime,
+    ) -> bool:
+        row = self._session.get(RunControlRow, run_id)
+        if row is None or row.lease_owner != owner:
+            return False
+        row.lease_expires_at = expires_at
+        row.updated_at = now
+        self._session.flush()
+        return True
+
+    def release_run_lease(self, run_id: str, owner: str, updated_at: datetime) -> None:
+        row = self._session.get(RunControlRow, run_id)
+        if row is None or row.lease_owner != owner:
+            return
+        row.lease_owner = None
+        row.lease_expires_at = None
+        row.updated_at = updated_at
+        self._session.flush()
+
+    def set_run_status(
+        self,
+        run_id: str,
+        status: str,
+        *,
+        failure_code: str | None,
+        started_at: datetime | None,
+        finished_at: datetime | None,
+    ) -> None:
+        row = self._session.get(InspectionRunRow, run_id)
+        if row is None:
+            raise KeyError(f"unknown run: {run_id}")
+        row.status = status
+        row.failure_code = failure_code
+        if started_at is not None:
+            row.started_at = started_at
+        row.finished_at = finished_at
+        self._session.flush()
+
+    def get_stage_checkpoint(
+        self,
+        run_id: str,
+        stage_name: str,
+    ) -> RunStageCheckpointMetadata | None:
+        row = self._session.get(RunStageCheckpointRow, (run_id, stage_name))
+        return _run_stage_checkpoint_metadata(row) if row is not None else None
+
+    def put_stage_checkpoint(self, value: RunStageCheckpointMetadata) -> None:
+        row = self._session.get(
+            RunStageCheckpointRow,
+            (value.run_id, value.stage_name),
+        )
+        payload = asdict(value)
+        if row is None:
+            self._session.add(RunStageCheckpointRow(**payload))
+        else:
+            for key, item in payload.items():
+                if key not in {"run_id", "stage_name"}:
+                    setattr(row, key, item)
+        self._session.flush()
+
+    def list_stage_checkpoints(
+        self,
+        run_id: str,
+    ) -> Sequence[RunStageCheckpointMetadata]:
+        statement = (
+            select(RunStageCheckpointRow)
+            .where(RunStageCheckpointRow.run_id == run_id)
+            .order_by(RunStageCheckpointRow.stage_name)
+        )
+        return tuple(
+            _run_stage_checkpoint_metadata(row) for row in self._session.scalars(statement)
+        )
 
 
 def _model_bundle_metadata(row: ModelBundleRow) -> ModelBundleMetadata:
@@ -158,4 +295,29 @@ def _artifact_metadata(row: ArtifactRow) -> ArtifactMetadata:
         size_bytes=row.size_bytes,
         media_type=row.media_type,
         created_at=row.created_at,
+    )
+
+
+def _run_control_metadata(row: RunControlRow) -> RunControlMetadata:
+    return RunControlMetadata(
+        run_id=row.run_id,
+        cancellation_requested=row.cancellation_requested,
+        lease_owner=row.lease_owner,
+        lease_expires_at=row.lease_expires_at,
+        updated_at=row.updated_at,
+    )
+
+
+def _run_stage_checkpoint_metadata(
+    row: RunStageCheckpointRow,
+) -> RunStageCheckpointMetadata:
+    return RunStageCheckpointMetadata(
+        run_id=row.run_id,
+        stage_name=row.stage_name,
+        status=row.status,
+        attempt_count=row.attempt_count,
+        evidence_path=row.evidence_path,
+        evidence_sha256=row.evidence_sha256,
+        failure_code=row.failure_code,
+        updated_at=row.updated_at,
     )

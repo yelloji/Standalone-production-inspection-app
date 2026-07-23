@@ -122,3 +122,45 @@ class ArtifactMetadata:
         )
         _validate_checksum(self.sha256)
         _validate_timestamp(self.created_at)
+
+
+@dataclass(frozen=True, slots=True)
+class RunControlMetadata:
+    run_id: str
+    cancellation_requested: bool
+    lease_owner: str | None
+    lease_expires_at: datetime | None
+    updated_at: datetime
+
+    def __post_init__(self) -> None:
+        if (self.lease_owner is None) != (self.lease_expires_at is None):
+            raise ValueError("run lease owner and expiry must be present together")
+        _validate_timestamp(self.lease_expires_at)
+        _validate_timestamp(self.updated_at)
+
+
+@dataclass(frozen=True, slots=True)
+class RunStageCheckpointMetadata:
+    run_id: str
+    stage_name: str
+    status: str
+    attempt_count: int
+    evidence_path: str | None
+    evidence_sha256: str | None
+    failure_code: str | None
+    updated_at: datetime
+
+    def __post_init__(self) -> None:
+        if self.attempt_count < 0:
+            raise ValueError("stage attempt count must be nonnegative")
+        if (self.evidence_path is None) != (self.evidence_sha256 is None):
+            raise ValueError("stage evidence path and checksum must be present together")
+        if self.evidence_path is not None:
+            object.__setattr__(
+                self,
+                "evidence_path",
+                normalize_relative_path(self.evidence_path),
+            )
+        if self.evidence_sha256 is not None:
+            _validate_checksum(self.evidence_sha256)
+        _validate_timestamp(self.updated_at)

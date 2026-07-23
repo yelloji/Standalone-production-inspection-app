@@ -3,10 +3,10 @@
 ## Document Status
 
 - Current phase: Production ONNX SAHI
-- Current task: Task 11 - SAHI 1312 slicing and merge
+- Current task: Task 12 - Parallel run orchestration
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
-- Production feature code started: Yes, reconstruction and GPU inference
+- Production feature code started: Yes, reconstruction, GPU inference, and orchestration
 
 ## Working Agreement
 
@@ -494,7 +494,7 @@ Result recorded on 2026-07-23:
 
 ### Task 12 - Parallel Run Orchestration
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -503,6 +503,34 @@ Work:
 - bounded queues/resources;
 - cancellation/restart/retry/locking;
 - reconstruction gate before result publication.
+
+Result recorded on 2026-07-23:
+
+- added additive migration `0003_run_orchestration` with one durable
+  cancellation/lease control per run and status/attempt/evidence/failure
+  checkpoints for reconstruction, inference, validation, and publication;
+- backfilled existing run controls during migration and made new run/control
+  creation one transaction to eliminate first-owner initialization races;
+- added expiring single-owner database leases with bounded heartbeat renewal,
+  ownership-loss failure, active-owner rejection, and release on every exit;
+- added an exactly two-worker executor so CPU reconstruction and the
+  single-owner GPU inference stage run concurrently without an unbounded task
+  queue;
+- added portable checksummed stage evidence, regular-file/link checks,
+  cumulative attempt counts, crashed-running-stage recovery, valid-checkpoint
+  reuse, and tampered-checkpoint rerun;
+- added cooperative durable cancellation, terminal cancelled runs, explicit
+  retry-only exceptions, and a persisted one-through-three attempt limit that
+  process restart cannot reset;
+- placed the explicit reconstruction-pass gate before validation checkpoint
+  completion and prohibited publication or completed run state until every
+  gate/evidence check succeeds;
+- passed 6 focused orchestration and 23 combined real-SQLite
+  database/orchestration tests plus the complete Python, frontend, Electron,
+  build, dependency, security, portability, isolation, artifact, and Git
+  hygiene gates;
+- no model, image, prediction, generated run evidence, database file, API, UI,
+  online connector, transfer file, or absolute machine path was committed.
 
 ### Task 13 - Prediction Projection and Deduplication
 
@@ -653,4 +681,5 @@ Work:
 | 2026-07-23 | Task 8 - Side-specific center completion | COMMITTED | Upper black-plate plan, lower flash detection/cyclic shared rotation, and explicit provenance policy; full regression gate passed | `cf0dae6` |
 | 2026-07-23 | Task 9 - Tiled reconstruction and artifacts | COMMITTED | Bounded uncropped rendering, BigTIFF/preview/coverage/provenance artifacts, validation, cleanup, and atomic publication; full regression gate passed | `b063fc6` |
 | 2026-07-23 | Task 10 - Persistent ONNX GPU worker | COMMITTED | Persistent fail-closed CUDA FP16 session, warm readiness, bounded batches, immutable raw outputs, and explicit provider/OOM failures; full regression gate passed | `2d3b7a2` |
-| 2026-07-23 | Task 11 - SAHI 1312 slicing and merge | COMMITTED | Deterministic bounded in-memory batches, source mapping, padding rejection, and class-aware boundary-crack merge; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 11 - SAHI 1312 slicing and merge | COMMITTED | Deterministic bounded in-memory batches, source mapping, padding rejection, and class-aware boundary-crack merge; full regression gate passed | `34b1ad4` |
+| 2026-07-23 | Task 12 - Parallel run orchestration | COMMITTED | Durable leases/checkpoints, bounded CPU/GPU concurrency, cancellation/restart/retry, and pre-publication reconstruction gate; full regression gate passed | This focused task commit |

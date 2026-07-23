@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     ForeignKey,
     Index,
@@ -236,3 +237,68 @@ class ArtifactRow(Base):
         nullable=False,
         default=utc_now,
     )
+
+
+class RunControlRow(Base):
+    __tablename__ = "run_controls"
+    __table_args__ = (
+        CheckConstraint(
+            "cancellation_requested IN (0, 1)",
+            name="run_control_cancellation_boolean",
+        ),
+        CheckConstraint(
+            "(lease_owner IS NULL AND lease_expires_at IS NULL) OR "
+            "(lease_owner IS NOT NULL AND lease_expires_at IS NOT NULL)",
+            name="run_control_lease_complete",
+        ),
+        Index("ix_run_controls_lease_expires_at", "lease_expires_at"),
+    )
+
+    run_id: Mapped[str] = mapped_column(
+        ForeignKey("inspection_runs.run_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    cancellation_requested: Mapped[bool] = mapped_column(
+        Boolean(),
+        nullable=False,
+        default=False,
+    )
+    lease_owner: Mapped[str | None] = mapped_column(String(128))
+    lease_expires_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False)
+
+
+class RunStageCheckpointRow(Base):
+    __tablename__ = "run_stage_checkpoints"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('pending', 'running', 'completed', 'failed', 'cancelled')",
+            name="run_stage_checkpoint_status",
+        ),
+        CheckConstraint(
+            "attempt_count >= 0",
+            name="run_stage_checkpoint_attempt_nonnegative",
+        ),
+        CheckConstraint(
+            "(evidence_path IS NULL AND evidence_sha256 IS NULL) OR "
+            "(evidence_path IS NOT NULL AND evidence_sha256 IS NOT NULL)",
+            name="run_stage_checkpoint_evidence_complete",
+        ),
+        CheckConstraint(
+            "evidence_sha256 IS NULL OR length(evidence_sha256) = 64",
+            name="run_stage_checkpoint_sha256_length",
+        ),
+        Index("ix_run_stage_checkpoints_run_status", "run_id", "status"),
+    )
+
+    run_id: Mapped[str] = mapped_column(
+        ForeignKey("inspection_runs.run_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    stage_name: Mapped[str] = mapped_column(String(64), primary_key=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    evidence_path: Mapped[str | None] = mapped_column(String(1024))
+    evidence_sha256: Mapped[str | None] = mapped_column(String(64))
+    failure_code: Mapped[str | None] = mapped_column(String(128))
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False)

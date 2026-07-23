@@ -26,6 +26,12 @@ Task 3 introduces metadata for:
 - ordered source frames;
 - generated artifacts.
 
+Task 12 extends the same application-owned database through additive migration
+`0003_run_orchestration` with one cancellation/lease control per inspection
+run and durable per-stage checkpoints. The detailed ownership, evidence, retry,
+and recovery rules are defined in
+[Durable Parallel Run Orchestration](DURABLE_PARALLEL_RUN_ORCHESTRATION.md).
+
 The schema deliberately excludes model-import workflow, inference results,
 reconstruction details, operator screens, and online connector behavior until
 their approved tasks.
