@@ -3,7 +3,7 @@
 ## Status
 
 - Documentation foundation: `APPROVED`
-- Current implementation task: `TASK 12 - COMMITTED`
+- Current implementation task: `TASK 13 - COMMITTED`
 - Application foundation started: Yes
 - Database foundation started: Yes
 - Production UI started: No
@@ -15,6 +15,7 @@
 - Task 10 committed: Yes
 - Task 11 committed: Yes
 - Task 12 committed: Yes
+- Task 13 committed: Yes
 
 ## Authority
 
@@ -55,6 +56,7 @@ When documents conflict, use this priority:
 - [Persistent ONNX GPU Worker](architecture/PERSISTENT_ONNX_GPU_WORKER.md)
 - [SAHI Slicing and Merge](architecture/SAHI_SLICING_AND_MERGE.md)
 - [Durable Parallel Run Orchestration](architecture/DURABLE_PARALLEL_RUN_ORCHESTRATION.md)
+- [Prediction Projection and Deduplication](architecture/PREDICTION_PROJECTION_AND_DEDUPLICATION.md)
 - [Architecture Decisions](decisions/ARCHITECTURE_DECISIONS.md)
 
 ### User Interface

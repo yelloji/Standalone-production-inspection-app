@@ -3,10 +3,10 @@
 ## Document Status
 
 - Current phase: Production ONNX SAHI
-- Current task: Task 12 - Parallel run orchestration
+- Current task: Task 13 - Prediction projection and deduplication
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
-- Production feature code started: Yes, reconstruction, GPU inference, and orchestration
+- Production feature code started: Yes, reconstruction, inference, orchestration, and projection
 
 ## Working Agreement
 
@@ -534,7 +534,7 @@ Result recorded on 2026-07-23:
 
 ### Task 13 - Prediction Projection and Deduplication
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -542,6 +542,33 @@ Work:
 - acquired-provenance clipping;
 - overlap and `16 -> 1` duplicate merging;
 - link every disc result to original evidence.
+
+Result recorded on 2026-07-23:
+
+- added strict source prediction, sparse mask, 16-frame projection,
+  configuration, acquired-footprint, disc prediction, and original-evidence
+  link contracts;
+- projected source boxes and polygons with exact saved homogeneous transforms
+  and warped sparse source masks with composed origin/projective geometry;
+- rasterized every prediction into a bounded pixel footprint and intersected
+  it only with provenance value 1 so no-data, reference-fill, and reserved
+  replacement pixels cannot become crack evidence;
+- derived disc boxes from trimmed acquired pixels while retaining mapped
+  polygon geometry and exact read-only acquired footprints for audit/viewers;
+- added deterministic same-class deduplication using exact footprint
+  IoU/intersection-over-smaller, transitive union, maximum confidence, convex
+  polygon hull, and stable result identity;
+- proved 16 duplicate frame observations become one result linked to all 16
+  original frame/box/slice records while different classes and separate
+  defects remain distinct;
+- replaced whole-image provenance validation with bounded chunk scanning and
+  added both per-footprint and total-footprint memory rejection gates;
+- passed 7 focused projection tests and the complete Python, frontend,
+  Electron, build, dependency, security, portability, isolation, artifact,
+  and Git hygiene gates;
+- no source image, provenance artifact, prediction artifact, model, database
+  change, decoder-specific code, API, UI, transfer file, or generated output
+  was committed.
 
 ## Phase 4 - Professional Application Interface
 
@@ -682,4 +709,5 @@ Work:
 | 2026-07-23 | Task 9 - Tiled reconstruction and artifacts | COMMITTED | Bounded uncropped rendering, BigTIFF/preview/coverage/provenance artifacts, validation, cleanup, and atomic publication; full regression gate passed | `b063fc6` |
 | 2026-07-23 | Task 10 - Persistent ONNX GPU worker | COMMITTED | Persistent fail-closed CUDA FP16 session, warm readiness, bounded batches, immutable raw outputs, and explicit provider/OOM failures; full regression gate passed | `2d3b7a2` |
 | 2026-07-23 | Task 11 - SAHI 1312 slicing and merge | COMMITTED | Deterministic bounded in-memory batches, source mapping, padding rejection, and class-aware boundary-crack merge; full regression gate passed | `34b1ad4` |
-| 2026-07-23 | Task 12 - Parallel run orchestration | COMMITTED | Durable leases/checkpoints, bounded CPU/GPU concurrency, cancellation/restart/retry, and pre-publication reconstruction gate; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 12 - Parallel run orchestration | COMMITTED | Durable leases/checkpoints, bounded CPU/GPU concurrency, cancellation/restart/retry, and pre-publication reconstruction gate; full regression gate passed | `743c3ed` |
+| 2026-07-23 | Task 13 - Prediction projection and deduplication | COMMITTED | Projective boxes/polygons/masks, acquired-only provenance clipping, exact 16-view deduplication, and complete source evidence links; full regression gate passed | This focused task commit |
