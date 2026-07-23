@@ -3,10 +3,10 @@
 ## Document Status
 
 - Current phase: Production reconstruction
-- Current task: Task 8 - Side-specific center completion
+- Current task: Task 9 - Tiled reconstruction and artifacts
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
-- Production feature code started: Yes, reconstruction geometry only
+- Production feature code started: Yes, reconstruction rendering
 
 ## Working Agreement
 
@@ -379,13 +379,40 @@ Result recorded on 2026-07-23:
 
 ### Task 9 - Tiled Reconstruction and Artifacts
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
 - bounded tiled/memory-mapped rendering;
 - preview, transforms, validation, coverage, provenance, BigTIFF;
 - disk-space checks, atomic finalization, cancellation, and reopening validation.
+
+Result recorded on 2026-07-23:
+
+- added strict ordered 16-frame render requests with portable checksummed
+  source paths, finite invertible projective matrices, bounded tile sizes, and
+  optional checksummed side-specific reference layers;
+- computed the uncropped integer canvas from every full transformed source
+  corner so top, bottom, outer surface, and center evidence are preserved;
+- added bounded projective tile sampling with capped native-edge feather
+  weights, exact acquired-contributor coverage counts, and no full native RGB
+  output allocation in memory;
+- applied Task 8 reference pixels only where acquired coverage is zero and
+  persisted distinct no-data, acquired, and reference-fill provenance;
+- generated uncompressed RGB, coverage, and provenance BigTIFF files plus a
+  bounded during-render PNG preview, exact transform JSON, and reconstruction
+  report;
+- added streaming checksums, byte sizes, disk-capacity preflight, per-tile
+  cancellation, Windows-safe mapped-file closure, TIFF/PNG reopening
+  validation, failure cleanup, existing-output rejection, and atomic directory
+  publication;
+- pinned `tifffile 2025.5.10`, the latest selected release supporting the
+  project's Python 3.10 floor;
+- passed 6 focused rendering tests and the complete Python, frontend,
+  Electron, build, dependency, security, portability, isolation, artifact,
+  and Git hygiene gates;
+- no source/reference image, generated artifact, database change, API, UI,
+  inference worker, transfer file, or diagnostic output was committed.
 
 ## Phase 3 - Production ONNX SAHI
 
@@ -572,4 +599,5 @@ Work:
 | 2026-07-23 | Task 5 - Offline acquisition intake | COMMITTED | Explicit 16-image order, full image validation, immutable owned manifest, and atomic intake; full regression gate passed | `068e899` |
 | 2026-07-23 | Task 6 - Reconstruction contracts and core geometry | COMMITTED | Standalone calibrated geometry, nominal placement, bounded global registration, and uncropped pose graph; full regression gate passed | `4d48b61` |
 | 2026-07-23 | Task 7 - Modular dense/projective reconstruction | COMMITTED | Spatially held-out evidence, normalized joint 16-frame projective solve, strict pair/closure gates, and side profiles; full regression gate passed | `2add121` |
-| 2026-07-23 | Task 8 - Side-specific center completion | COMMITTED | Upper black-plate plan, lower flash detection/cyclic shared rotation, and explicit provenance policy; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 8 - Side-specific center completion | COMMITTED | Upper black-plate plan, lower flash detection/cyclic shared rotation, and explicit provenance policy; full regression gate passed | `cf0dae6` |
+| 2026-07-23 | Task 9 - Tiled reconstruction and artifacts | COMMITTED | Bounded uncropped rendering, BigTIFF/preview/coverage/provenance artifacts, validation, cleanup, and atomic publication; full regression gate passed | This focused task commit |

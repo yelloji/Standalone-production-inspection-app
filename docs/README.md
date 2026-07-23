@@ -3,7 +3,7 @@
 ## Status
 
 - Documentation foundation: `APPROVED`
-- Current implementation task: `TASK 8 - COMMITTED`
+- Current implementation task: `TASK 9 - COMMITTED`
 - Application foundation started: Yes
 - Database foundation started: Yes
 - Production UI started: No
@@ -11,6 +11,7 @@
 - Task 6 committed: Yes
 - Task 7 committed: Yes
 - Task 8 committed: Yes
+- Task 9 committed: Yes
 
 ## Authority
 
@@ -47,6 +48,7 @@ When documents conflict, use this priority:
 - [Reconstruction Core Geometry](architecture/RECONSTRUCTION_CORE_GEOMETRY.md)
 - [Modular Projective Reconstruction](architecture/MODULAR_PROJECTIVE_RECONSTRUCTION.md)
 - [Side-Specific Center Completion](architecture/SIDE_SPECIFIC_CENTER_COMPLETION.md)
+- [Tiled Reconstruction Artifacts](architecture/TILED_RECONSTRUCTION_ARTIFACTS.md)
 - [Architecture Decisions](decisions/ARCHITECTURE_DECISIONS.md)
 
 ### User Interface
