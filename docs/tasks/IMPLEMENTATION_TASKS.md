@@ -3,10 +3,10 @@
 ## Document Status
 
 - Current phase: Safe foundation
-- Current task: Task 1 - Repository and tooling foundation
+- Current task: Task 6 - Port reconstruction contracts and core geometry
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
-- Production feature code started: No
+- Production feature code started: Yes, reconstruction geometry only
 
 ## Working Agreement
 
@@ -258,13 +258,40 @@ Result recorded on 2026-07-23:
 
 ### Task 6 - Port Reconstruction Contracts and Core Geometry
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
 - port schemas, calibration, placement, registration building blocks, and focused tests from the audited transfer bundle;
 - remove all AI Studio coupling;
 - preserve source provenance and record intentional differences.
+
+Result recorded on 2026-07-23:
+
+- added strict immutable calibration, registration-evidence, frame-transform,
+  and complete transform-set contracts integrated with the standalone
+  acquisition manifest, disc-side enum, identifiers, and portable paths;
+- added finite evidence validation, robust common-center calibration,
+  conservative native-pixel radial-band derivation, and explicit rejection of
+  incomplete, weak, degenerate, or outlier pair evidence;
+- added exact 16-frame nominal placement at `22.5`-degree increments,
+  homogeneous point mapping, validated forward/inverse transforms, and clipped
+  source-ROI output bounds;
+- added a confidence-gated global fine-angle solve anchored to frame 1 with
+  fixed-center, scale, residual, `+/-2`-degree correction, and four-pixel loop
+  closure gates;
+- added a complete-source similarity pose graph that preserves all source
+  corners and reports uncropped union bounds without allocating a full output;
+- pinned direct NumPy `2.2.6` use while intentionally deferring OpenCV image
+  matching, masks, rendering, and artifacts to later approved tasks;
+- documented the exact ignored transfer provenance and all intentional
+  standalone differences; production code has no transfer or AI Studio
+  import/runtime coupling;
+- passed 14 focused reconstruction tests and 94 backend tests total, strict
+  formatting/lint/type gates, frontend/Electron tests and builds, dependency
+  checks, npm audit, portability/isolation scans, and Git whitespace hygiene;
+- no source image, generated reconstruction, API, database change, inference,
+  UI, or transfer file was committed.
 
 ### Task 7 - Modular Dense/Projective Reconstruction
 
@@ -480,4 +507,5 @@ Work:
 | 2026-07-23 | Task 2 - Core contracts and configuration | COMMITTED | Portable path/configuration service and strict versioned contracts; complete regression gate passed | `326fad4` |
 | 2026-07-23 | Task 3 - Database foundation | COMMITTED | Independent SQLite metadata, migrations, transactions, indexes, backup/recovery; full regression gate passed | `247475c` |
 | 2026-07-23 | Task 4 - Manual ONNX bundle import | COMMITTED | Safe staged import, strict schemas/checksums/ONNX validation, and rollback-safe activation; full regression gate passed | `67c9c8a` |
-| 2026-07-23 | Task 5 - Offline acquisition intake | COMMITTED | Explicit 16-image order, full image validation, immutable owned manifest, and atomic intake; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 5 - Offline acquisition intake | COMMITTED | Explicit 16-image order, full image validation, immutable owned manifest, and atomic intake; full regression gate passed | `068e899` |
+| 2026-07-23 | Task 6 - Reconstruction contracts and core geometry | COMMITTED | Standalone calibrated geometry, nominal placement, bounded global registration, and uncropped pose graph; full regression gate passed | This focused task commit |
