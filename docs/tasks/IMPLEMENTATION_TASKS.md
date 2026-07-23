@@ -140,7 +140,7 @@ Result recorded on 2026-07-23:
 
 ### Task 3 - Database Foundation
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -148,6 +148,30 @@ Work:
 - pipeline/model/run/frame/artifact metadata foundation;
 - additive migrations, transactions, indexes, backup/recovery tests;
 - real isolated SQLite test database.
+
+Gate: migration, repository, transaction, constraint, index, backup, recovery,
+integrity, and full regression tests pass.
+
+Result recorded on 2026-07-23:
+
+- added a portable application-owned SQLite engine and short-lived transaction
+  boundary with foreign keys, WAL, normal synchronous durability, and a
+  bounded busy timeout;
+- added framework-neutral repositories for model bundle, pipeline snapshot,
+  inspection run, ordered source-frame, and artifact metadata;
+- added validated portable metadata paths, SHA-256 values, and timezone-aware
+  timestamps;
+- added the initial additive Alembic migration with explicit constraints,
+  foreign keys, uniqueness rules, and query indexes;
+- added integrity-checked online backup and closed-database atomic recovery
+  beneath the approved data root;
+- passed 50 backend tests using real isolated SQLite files, including exact
+  migration/model parity, idempotent upgrade, transactions, rollback,
+  constraints, indexes, backup, recovery, corruption, and path rejection;
+- passed all Python, frontend, Electron, build, dependency, security,
+  portability, isolation, and Git hygiene gates;
+- no database file, AI Studio dependency, API endpoint, production UI,
+  inference, reconstruction, or acquisition workflow was added.
 
 ### Task 4 - Manual ONNX Bundle Import
 
@@ -394,4 +418,5 @@ Work:
 | 2026-07-22 | Initial repository README | COMMITTED | README-only root commit pushed; transfer bundle excluded | `7b0c505` |
 | 2026-07-22 | Task 0 - Documentation foundation | COMMITTED | 9 linked documents; no application code; transfer bundle ignored | `8c3c3b6` |
 | 2026-07-23 | Task 1 - Repository and tooling foundation | COMMITTED | Portable backend/frontend/Electron foundation; full quality and runtime smoke checks passed | `80095fd` |
-| 2026-07-23 | Task 2 - Core contracts and configuration | COMMITTED | Portable path/configuration service and strict versioned contracts; complete regression gate passed | This focused task commit |
+| 2026-07-23 | Task 2 - Core contracts and configuration | COMMITTED | Portable path/configuration service and strict versioned contracts; complete regression gate passed | `326fad4` |
+| 2026-07-23 | Task 3 - Database foundation | COMMITTED | Independent SQLite metadata, migrations, transactions, indexes, backup/recovery; full regression gate passed | This focused task commit |
