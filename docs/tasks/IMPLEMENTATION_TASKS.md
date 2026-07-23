@@ -2,8 +2,8 @@
 
 ## Document Status
 
-- Current phase: Safe foundation
-- Current task: Task 6 - Port reconstruction contracts and core geometry
+- Current phase: Production reconstruction
+- Current task: Task 7 - Modular dense/projective reconstruction
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
 - Production feature code started: Yes, reconstruction geometry only
@@ -295,7 +295,7 @@ Result recorded on 2026-07-23:
 
 ### Task 7 - Modular Dense/Projective Reconstruction
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -303,6 +303,34 @@ Work:
 - joint 16-frame solve and held-out validation;
 - explicit closure and failure gates;
 - upper/downside profile behavior.
+
+Result recorded on 2026-07-23:
+
+- added immutable dense pair-evidence records with finite native-coordinate,
+  equal-count, minimum-fit, and immutable-copy guarantees;
+- added deterministic spatial fit/held-out separation with bounded,
+  distributed sampling so validation evidence never contributes to fitting;
+- added explicit immutable lower and upper projective profile identities for
+  pipeline selection and independent future qualification;
+- added direct-linear homography warm starts and one normalized sparse
+  nonlinear solve for 15 free frame poses with frame 1 fixed and all 16
+  neighbor edges included;
+- added independent per-pair native-pixel median, 95th-percentile, maximum,
+  minimum-count, transform-conditioning, optimizer, and explicit `16 -> 1`
+  loop-closure gates;
+- made transform publication fail closed: any evidence or validation failure
+  retains diagnostics but returns no frame-to-reference transform set;
+- pinned SciPy `1.15.3` for supported Python 3.10-3.12 solver wheels and the
+  matching `scipy-stubs 1.15.3.0` development contract;
+- documented the modular image-adapter boundary, proof provenance, strict
+  one-pixel policy, historical diagnostic failures, and intentional exclusion
+  of decoding, OpenCV coupling, rendering, cropping, storage, API, and UI;
+- passed 7 focused dense/projective tests and 101 backend tests total, strict
+  formatting/lint/type gates, frontend/Electron tests and builds, dependency
+  checks, npm audit, portability/isolation scans, runtime import smoke, and Git
+  whitespace hygiene;
+- no image, model, database, generated reconstruction, transfer file, or
+  diagnostic artifact was committed.
 
 ### Task 8 - Side-Specific Center Completion
 
@@ -508,4 +536,5 @@ Work:
 | 2026-07-23 | Task 3 - Database foundation | COMMITTED | Independent SQLite metadata, migrations, transactions, indexes, backup/recovery; full regression gate passed | `247475c` |
 | 2026-07-23 | Task 4 - Manual ONNX bundle import | COMMITTED | Safe staged import, strict schemas/checksums/ONNX validation, and rollback-safe activation; full regression gate passed | `67c9c8a` |
 | 2026-07-23 | Task 5 - Offline acquisition intake | COMMITTED | Explicit 16-image order, full image validation, immutable owned manifest, and atomic intake; full regression gate passed | `068e899` |
-| 2026-07-23 | Task 6 - Reconstruction contracts and core geometry | COMMITTED | Standalone calibrated geometry, nominal placement, bounded global registration, and uncropped pose graph; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 6 - Reconstruction contracts and core geometry | COMMITTED | Standalone calibrated geometry, nominal placement, bounded global registration, and uncropped pose graph; full regression gate passed | `4d48b61` |
+| 2026-07-23 | Task 7 - Modular dense/projective reconstruction | COMMITTED | Spatially held-out evidence, normalized joint 16-frame projective solve, strict pair/closure gates, and side profiles; full regression gate passed | This focused task commit |
