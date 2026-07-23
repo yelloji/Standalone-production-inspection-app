@@ -3,7 +3,7 @@
 ## Status
 
 - Documentation foundation: `APPROVED`
-- Current implementation task: `TASK 13 - COMMITTED`
+- Current implementation task: `TASK 14 - COMMITTED`
 - Application foundation started: Yes
 - Database foundation started: Yes
 - Production UI started: No
@@ -16,6 +16,7 @@
 - Task 11 committed: Yes
 - Task 12 committed: Yes
 - Task 13 committed: Yes
+- Task 14 committed: Yes
 
 ## Authority
 
@@ -57,6 +58,7 @@ When documents conflict, use this priority:
 - [SAHI Slicing and Merge](architecture/SAHI_SLICING_AND_MERGE.md)
 - [Durable Parallel Run Orchestration](architecture/DURABLE_PARALLEL_RUN_ORCHESTRATION.md)
 - [Prediction Projection and Deduplication](architecture/PREDICTION_PROJECTION_AND_DEDUPLICATION.md)
+- [Local Backend API and Events](architecture/LOCAL_BACKEND_API_AND_EVENTS.md)
 - [Architecture Decisions](decisions/ARCHITECTURE_DECISIONS.md)
 
 ### User Interface

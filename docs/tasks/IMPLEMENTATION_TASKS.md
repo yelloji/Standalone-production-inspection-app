@@ -2,11 +2,11 @@
 
 ## Document Status
 
-- Current phase: Production ONNX SAHI
-- Current task: Task 13 - Prediction projection and deduplication
+- Current phase: Professional application interface
+- Current task: Task 14 - Backend API and event boundary
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
-- Production feature code started: Yes, reconstruction, inference, orchestration, and projection
+- Production feature code started: Yes, backend pipeline and local API boundary
 
 ## Working Agreement
 
@@ -574,7 +574,7 @@ Result recorded on 2026-07-23:
 
 ### Task 14 - Backend API and Event Boundary
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -583,6 +583,35 @@ Work:
 - run commands, durable status, artifacts, models/pipelines;
 - event/progress delivery;
 - no heavy work in request handlers.
+
+Result recorded on 2026-07-23:
+
+- added immutable typed request/response contracts for liveness, component
+  readiness, models, pipelines, run creation/status/checkpoints/artifacts,
+  commands, and sequenced progress events;
+- added paginated repository queries for models, pipelines, and runs while
+  retaining short-lived transaction ownership in the backend;
+- added approved-pipeline run creation, durable run/control transaction,
+  lifecycle command validation, duplicate/missing/conflict/queue/service
+  responses, and artifact metadata views without arbitrary file serving;
+- added a one-worker bounded run dispatcher with nonblocking submission,
+  duplicate active rejection, injected Task 12 execute/cancel callbacks,
+  lifecycle close, and sanitized state events;
+- added a fixed-capacity thread-safe event ring with monotonic sequences,
+  bounded reads, validated progress pairs, and gap detection that directs UI
+  clients back to durable state;
+- separated process liveness from production readiness and made unconfigured
+  services fail closed with 503 responses;
+- added loopback Trusted Host enforcement and explicit Vite development CORS
+  origins/methods/headers without wildcard or credential access;
+- proved an HTTP start response completes while the controlled heavy worker is
+  still blocked, so request handlers contain no reconstruction/inference work;
+- passed 6 focused API/health tests and the complete Python, frontend,
+  Electron, build, dependency, security, portability, isolation, artifact,
+  and Git hygiene gates;
+- no model, image, database file, generated run/artifact, visible UI, online
+  connector, transfer file, external bind, or absolute machine path was
+  committed.
 
 ### Task 15 - Electron/React Shell and Design System
 
@@ -710,4 +739,5 @@ Work:
 | 2026-07-23 | Task 10 - Persistent ONNX GPU worker | COMMITTED | Persistent fail-closed CUDA FP16 session, warm readiness, bounded batches, immutable raw outputs, and explicit provider/OOM failures; full regression gate passed | `2d3b7a2` |
 | 2026-07-23 | Task 11 - SAHI 1312 slicing and merge | COMMITTED | Deterministic bounded in-memory batches, source mapping, padding rejection, and class-aware boundary-crack merge; full regression gate passed | `34b1ad4` |
 | 2026-07-23 | Task 12 - Parallel run orchestration | COMMITTED | Durable leases/checkpoints, bounded CPU/GPU concurrency, cancellation/restart/retry, and pre-publication reconstruction gate; full regression gate passed | `743c3ed` |
-| 2026-07-23 | Task 13 - Prediction projection and deduplication | COMMITTED | Projective boxes/polygons/masks, acquired-only provenance clipping, exact 16-view deduplication, and complete source evidence links; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 13 - Prediction projection and deduplication | COMMITTED | Projective boxes/polygons/masks, acquired-only provenance clipping, exact 16-view deduplication, and complete source evidence links; full regression gate passed | `dffd007` |
+| 2026-07-23 | Task 14 - Backend API and event boundary | COMMITTED | Typed local resources/commands, component readiness, bounded background dispatch, sequenced events, and loopback security; full regression gate passed | This focused task commit |

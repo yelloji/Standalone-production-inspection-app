@@ -48,6 +48,20 @@ class MetadataRepository:
         row = self._session.scalar(statement)
         return _model_bundle_metadata(row) if row is not None else None
 
+    def list_model_bundles(
+        self,
+        *,
+        limit: int,
+        offset: int,
+    ) -> Sequence[ModelBundleMetadata]:
+        statement = (
+            select(ModelBundleRow)
+            .order_by(ModelBundleRow.created_at.desc(), ModelBundleRow.model_bundle_id)
+            .limit(limit)
+            .offset(offset)
+        )
+        return tuple(_model_bundle_metadata(row) for row in self._session.scalars(statement))
+
     def set_model_bundle_state(self, model_bundle_id: str, state: str) -> None:
         row = self._session.get(ModelBundleRow, model_bundle_id)
         if row is None:
@@ -66,6 +80,23 @@ class MetadataRepository:
         row = self._session.get(PipelineSnapshotRow, pipeline_snapshot_id)
         return _pipeline_snapshot_metadata(row) if row is not None else None
 
+    def list_pipeline_snapshots(
+        self,
+        *,
+        limit: int,
+        offset: int,
+    ) -> Sequence[PipelineSnapshotMetadata]:
+        statement = (
+            select(PipelineSnapshotRow)
+            .order_by(
+                PipelineSnapshotRow.created_at.desc(),
+                PipelineSnapshotRow.pipeline_snapshot_id,
+            )
+            .limit(limit)
+            .offset(offset)
+        )
+        return tuple(_pipeline_snapshot_metadata(row) for row in self._session.scalars(statement))
+
     def add_run(self, value: InspectionRunMetadata) -> None:
         self._session.add(InspectionRunRow(**asdict(value)))
         self._session.flush()
@@ -83,6 +114,20 @@ class MetadataRepository:
     def get_run(self, run_id: str) -> InspectionRunMetadata | None:
         row = self._session.get(InspectionRunRow, run_id)
         return _run_metadata(row) if row is not None else None
+
+    def list_runs(
+        self,
+        *,
+        limit: int,
+        offset: int,
+    ) -> Sequence[InspectionRunMetadata]:
+        statement = (
+            select(InspectionRunRow)
+            .order_by(InspectionRunRow.created_at.desc(), InspectionRunRow.run_id)
+            .limit(limit)
+            .offset(offset)
+        )
+        return tuple(_run_metadata(row) for row in self._session.scalars(statement))
 
     def add_source_frame(self, value: SourceFrameMetadata) -> None:
         self._session.add(SourceFrameRow(**asdict(value)))
