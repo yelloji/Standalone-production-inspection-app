@@ -3,11 +3,11 @@
 ## Status
 
 - Documentation foundation: `APPROVED`
-- Current implementation task: `TASK 4 - COMMITTED`
+- Current implementation task: `TASK 5 - COMMITTED`
 - Application foundation started: Yes
 - Database foundation started: Yes
 - Production UI started: No
-- Task 4 committed: Yes
+- Task 5 committed: Yes
 
 ## Authority
 
@@ -40,6 +40,7 @@ When documents conflict, use this priority:
 - [Core Contracts and Configuration](architecture/CORE_CONTRACTS_AND_CONFIGURATION.md)
 - [Database Foundation](architecture/DATABASE_FOUNDATION.md)
 - [Manual ONNX Bundle Import](architecture/MODEL_BUNDLE_IMPORT.md)
+- [Offline Acquisition Intake](architecture/OFFLINE_ACQUISITION_INTAKE.md)
 - [Architecture Decisions](decisions/ARCHITECTURE_DECISIONS.md)
 
 ### User Interface

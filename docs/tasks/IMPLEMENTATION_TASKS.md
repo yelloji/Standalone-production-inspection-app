@@ -219,7 +219,7 @@ Result recorded on 2026-07-23:
 
 ### Task 5 - Offline Acquisition Intake
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -227,6 +227,32 @@ Work:
 - exactly 16 ordered immutable images;
 - geometry/format/hash/duplicate/completeness validation;
 - immutable acquisition manifest.
+
+Gate: explicit order, exact count/completeness, real decode, format, geometry,
+duplicate, checksum, source-independence, atomic finalization, rejection, and
+full regression tests pass.
+
+Result recorded on 2026-07-23:
+
+- added a strict version-1 acquisition manifest for 16 positional frames,
+  upper/lower side, `22.5`-degree angles, owned paths, dimensions, formats,
+  sizes, and SHA-256 values;
+- required an absolute selected folder and explicit 16-file order; production
+  order is never inferred from filenames, timestamps, or directory iteration;
+- required the selected folder image inventory to exactly match the ordered
+  list and rejected a missing or unselected seventeenth image;
+- fully decoded JPEG, PNG, and TIFF files, enforced configured geometry and
+  supported pixel modes, and rejected corruption or multi-frame input;
+- rejected unsafe/linked paths, duplicate names/content, unsupported files,
+  copy mismatch, and existing acquisition identifiers;
+- added application-controlled staging, deterministic owned filenames,
+  post-copy verification, canonical manifest/checksum persistence, failure
+  cleanup, and atomic publication;
+- passed 80 backend tests plus the complete Python, database, ONNX, frontend,
+  Electron, build, dependency, security, portability, isolation, ordering,
+  artifact, and Git hygiene gates;
+- no UI, API endpoint, reconstruction, inference, run orchestration, source
+  image, or generated acquisition was committed.
 
 ## Phase 2 - Production Reconstruction
 
@@ -453,4 +479,5 @@ Work:
 | 2026-07-23 | Task 1 - Repository and tooling foundation | COMMITTED | Portable backend/frontend/Electron foundation; full quality and runtime smoke checks passed | `80095fd` |
 | 2026-07-23 | Task 2 - Core contracts and configuration | COMMITTED | Portable path/configuration service and strict versioned contracts; complete regression gate passed | `326fad4` |
 | 2026-07-23 | Task 3 - Database foundation | COMMITTED | Independent SQLite metadata, migrations, transactions, indexes, backup/recovery; full regression gate passed | `247475c` |
-| 2026-07-23 | Task 4 - Manual ONNX bundle import | COMMITTED | Safe staged import, strict schemas/checksums/ONNX validation, and rollback-safe activation; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 4 - Manual ONNX bundle import | COMMITTED | Safe staged import, strict schemas/checksums/ONNX validation, and rollback-safe activation; full regression gate passed | `67c9c8a` |
+| 2026-07-23 | Task 5 - Offline acquisition intake | COMMITTED | Explicit 16-image order, full image validation, immutable owned manifest, and atomic intake; full regression gate passed | This focused task commit |
