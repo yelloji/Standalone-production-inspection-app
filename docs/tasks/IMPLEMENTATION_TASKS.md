@@ -103,7 +103,7 @@ Result recorded on 2026-07-23:
 
 ### Task 2 - Core Contracts and Configuration
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -114,6 +114,27 @@ Work:
 - strict path containment.
 
 Gate: positive, rejection, round-trip, and schema-version tests pass.
+
+Result recorded on 2026-07-23:
+
+- added strict schema-versioned model bundle, pipeline, acquisition, run,
+  stage, transform, prediction, artifact, error, and application-configuration
+  contracts;
+- added canonical JSON serialization, deterministic SHA-256 generation, and
+  tampered-payload verification;
+- added an absolute resource-root contract and configurable writable data root
+  with explicit argument, environment, and application-relative fallback
+  precedence;
+- added normalized safe relative paths, Windows portability checks, root
+  containment, explicit data-layout creation, and absolute-to-relative
+  conversion;
+- added validated atomic configuration save/load with same-directory temporary
+  files and cleanup;
+- passed 33 backend tests, all Python quality gates, unchanged
+  frontend/Electron checks and builds, npm security audit, runtime path scan,
+  and Git diff hygiene;
+- no database, inference, reconstruction, production UI, or online intake was
+  added.
 
 ## Phase 1 - Durable Offline Core
 
@@ -372,4 +393,5 @@ Work:
 |---|---|---|---|---|
 | 2026-07-22 | Initial repository README | COMMITTED | README-only root commit pushed; transfer bundle excluded | `7b0c505` |
 | 2026-07-22 | Task 0 - Documentation foundation | COMMITTED | 9 linked documents; no application code; transfer bundle ignored | `8c3c3b6` |
-| 2026-07-23 | Task 1 - Repository and tooling foundation | COMMITTED | Portable backend/frontend/Electron foundation; full quality and runtime smoke checks passed | This focused foundation commit |
+| 2026-07-23 | Task 1 - Repository and tooling foundation | COMMITTED | Portable backend/frontend/Electron foundation; full quality and runtime smoke checks passed | `80095fd` |
+| 2026-07-23 | Task 2 - Core contracts and configuration | COMMITTED | Portable path/configuration service and strict versioned contracts; complete regression gate passed | This focused task commit |
