@@ -3,7 +3,7 @@
 ## Document Status
 
 - Current phase: Production reconstruction
-- Current task: Task 7 - Modular dense/projective reconstruction
+- Current task: Task 8 - Side-specific center completion
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
 - Production feature code started: Yes, reconstruction geometry only
@@ -334,7 +334,7 @@ Result recorded on 2026-07-23:
 
 ### Task 8 - Side-Specific Center Completion
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -342,6 +342,40 @@ Work:
 - downside flash/screen detection, cyclic correspondence, and shared rotation;
 - acquired/reference provenance separation;
 - no universal hardcoded `160-degree` angle.
+
+Result recorded on 2026-07-23:
+
+- added strict immutable center-asset contracts with checksummed portable
+  paths, measured circles/markers, upper component exclusion, and exactly ten
+  unique lower screen angles;
+- added pipeline-owned upper/lower center-completion profiles with explicit
+  strategies, angular thresholds, acquired-pixel preservation,
+  inference-ineligible reference fill, and optional separately provenanced
+  real-screen replacement;
+- added an upper black-plate-only affine plan that aligns the light marker to
+  the image-1 start ray, scales to the measured opening, and excludes gray
+  ring, silver fixtures, and surrounding overview pixels by contract;
+- added circular flash-peak detection from a 360-bin acquired-pixel angular
+  score profile with deterministic smoothing, distance, prominence, count,
+  and diagnostic evidence;
+- added all-shift cyclic screen/flash correspondence, one shared assembly
+  rotation, marker-based 36-degree symmetry resolution, and median/maximum
+  angular failure gates;
+- reproduced the historical `160.0`-degree/`2.0`-degree-median proof evidence
+  while proving a different dataset produces its own rotation; production
+  contains no fixed 160-degree fallback;
+- reserved distinct no-data, acquired, reference-fill, and approved real-screen
+  replacement provenance values for the Task 9 renderer and later inference
+  exclusion;
+- documented proof provenance, rejected diagnostic behaviors, immutable asset
+  boundaries, pixel ownership, and the separation between angular detection,
+  placement planning, and rendering;
+- passed 8 focused center-completion tests and 109 backend tests total, strict
+  formatting/lint/type gates, frontend/Electron tests and builds, dependency
+  checks, npm audit, portability/isolation/hardcoded-angle scans, runtime import
+  smoke, and Git whitespace hygiene;
+- no reference image, generated reconstruction, source mask, database change,
+  API, UI, transfer file, or diagnostic artifact was committed.
 
 ### Task 9 - Tiled Reconstruction and Artifacts
 
@@ -537,4 +571,5 @@ Work:
 | 2026-07-23 | Task 4 - Manual ONNX bundle import | COMMITTED | Safe staged import, strict schemas/checksums/ONNX validation, and rollback-safe activation; full regression gate passed | `67c9c8a` |
 | 2026-07-23 | Task 5 - Offline acquisition intake | COMMITTED | Explicit 16-image order, full image validation, immutable owned manifest, and atomic intake; full regression gate passed | `068e899` |
 | 2026-07-23 | Task 6 - Reconstruction contracts and core geometry | COMMITTED | Standalone calibrated geometry, nominal placement, bounded global registration, and uncropped pose graph; full regression gate passed | `4d48b61` |
-| 2026-07-23 | Task 7 - Modular dense/projective reconstruction | COMMITTED | Spatially held-out evidence, normalized joint 16-frame projective solve, strict pair/closure gates, and side profiles; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 7 - Modular dense/projective reconstruction | COMMITTED | Spatially held-out evidence, normalized joint 16-frame projective solve, strict pair/closure gates, and side profiles; full regression gate passed | `2add121` |
+| 2026-07-23 | Task 8 - Side-specific center completion | COMMITTED | Upper black-plate plan, lower flash detection/cyclic shared rotation, and explicit provenance policy; full regression gate passed | This focused task commit |
