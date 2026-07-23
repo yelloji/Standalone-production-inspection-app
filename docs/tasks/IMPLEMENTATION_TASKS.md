@@ -2,11 +2,11 @@
 
 ## Document Status
 
-- Current phase: Production reconstruction
-- Current task: Task 9 - Tiled reconstruction and artifacts
+- Current phase: Production ONNX SAHI
+- Current task: Task 10 - Persistent ONNX GPU worker
 - Current task status: `COMMITTED`
 - Application code started: Yes, foundation only
-- Production feature code started: Yes, reconstruction rendering
+- Production feature code started: Yes, reconstruction and GPU inference
 
 ## Working Agreement
 
@@ -418,7 +418,7 @@ Result recorded on 2026-07-23:
 
 ### Task 10 - Persistent ONNX GPU Worker
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -427,6 +427,30 @@ Work:
 - bounded batch execution and IO validation;
 - immutable raw predictions;
 - clear provider/OOM failures.
+
+Result recorded on 2026-07-23:
+
+- added a single-owner persistent ONNX Runtime session with explicit CUDA
+  provider selection and disabled CPU execution-provider fallback;
+- required a portable checksummed model, exact validated runtime IO contract,
+  FP16 three-channel NCHW `1312 x 1312` input, approved batch limit, and
+  bounded warm-up count before readiness;
+- added idempotent start, terminal close, explicit created/ready/failed/closed
+  states, session reuse, and serialized inference access;
+- validated every warm-up and inference output against manifest dtype, rank,
+  dimensions, names, and dynamic batch before returning evidence;
+- copied raw outputs into C-contiguous application-owned read-only arrays with
+  request, model, batch, and forward-duration identity;
+- added distinct fail-closed provider, initialization, input, output, CUDA
+  execution, GPU OOM, and lifecycle errors with no partial result or CPU retry;
+- pinned and imported `onnxruntime-gpu 1.23.2` and verified native CUDA
+  provider visibility while keeping production-model parity/hardware timing
+  as explicit commissioning evidence;
+- passed 7 focused worker tests and the complete Python, frontend, Electron,
+  build, dependency, security, portability, isolation, artifact, and Git
+  hygiene gates;
+- no model, prediction, GPU-specific machine path, database change, API, UI,
+  SAHI slicing, decoder, orchestration, or generated artifact was committed.
 
 ### Task 11 - SAHI 1312 Slicing and Merge
 
@@ -600,4 +624,5 @@ Work:
 | 2026-07-23 | Task 6 - Reconstruction contracts and core geometry | COMMITTED | Standalone calibrated geometry, nominal placement, bounded global registration, and uncropped pose graph; full regression gate passed | `4d48b61` |
 | 2026-07-23 | Task 7 - Modular dense/projective reconstruction | COMMITTED | Spatially held-out evidence, normalized joint 16-frame projective solve, strict pair/closure gates, and side profiles; full regression gate passed | `2add121` |
 | 2026-07-23 | Task 8 - Side-specific center completion | COMMITTED | Upper black-plate plan, lower flash detection/cyclic shared rotation, and explicit provenance policy; full regression gate passed | `cf0dae6` |
-| 2026-07-23 | Task 9 - Tiled reconstruction and artifacts | COMMITTED | Bounded uncropped rendering, BigTIFF/preview/coverage/provenance artifacts, validation, cleanup, and atomic publication; full regression gate passed | This focused task commit |
+| 2026-07-23 | Task 9 - Tiled reconstruction and artifacts | COMMITTED | Bounded uncropped rendering, BigTIFF/preview/coverage/provenance artifacts, validation, cleanup, and atomic publication; full regression gate passed | `b063fc6` |
+| 2026-07-23 | Task 10 - Persistent ONNX GPU worker | COMMITTED | Persistent fail-closed CUDA FP16 session, warm readiness, bounded batches, immutable raw outputs, and explicit provider/OOM failures; full regression gate passed | This focused task commit |
