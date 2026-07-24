@@ -1,4 +1,5 @@
 import type {
+  CenterReferenceSummary,
   EventBatch,
   HealthResponse,
   ModelSummary,
@@ -84,6 +85,20 @@ export class InspectionApiClient {
     return this.request('/api/v1/reconstruction-jobs', {
       method: 'POST',
       body: { source_path: sourcePath, side, preview_size: previewSize },
+    })
+  }
+
+  centerReferences(signal?: AbortSignal): Promise<readonly CenterReferenceSummary[]> {
+    return this.request('/api/v1/center-references', { signal })
+  }
+
+  importCenterReference(
+    sourcePath: string,
+    side: 'upper' | 'lower',
+  ): Promise<CenterReferenceSummary> {
+    return this.request('/api/v1/center-references/import', {
+      method: 'POST',
+      body: { source_path: sourcePath, side },
     })
   }
 

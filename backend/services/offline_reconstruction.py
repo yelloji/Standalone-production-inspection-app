@@ -6,7 +6,7 @@ import json
 import re
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from PIL import Image
@@ -18,6 +18,10 @@ from backend.reconstruction.image_evidence import (
     extract_cycle_image_evidence,
 )
 from backend.reconstruction.preview import ReconstructionPreview, render_reconstruction_preview
+from backend.reconstruction.preview_center import (
+    apply_center_completion_to_preview,
+    estimate_cycle_calibration,
+)
 from backend.reconstruction.projective import (
     LOWER_PROJECTIVE_PROFILE,
     UPPER_PROJECTIVE_PROFILE,
@@ -28,6 +32,7 @@ from backend.services.acquisition_intake import (
     SUPPORTED_SUFFIXES,
     OfflineAcquisitionIntakeService,
 )
+from backend.services.center_reference_library import CenterReferenceLibrary
 
 ProgressCallback = Callable[[str, int, int], None]
 
@@ -50,6 +55,10 @@ class OfflineReconstructionResult:
     preview: ReconstructionPreview
     report_relative_path: str
     failure_reasons: tuple[str, ...]
+    center_completion_applied: bool = False
+    center_profile_id: str | None = None
+    center_rotation_degrees: float | None = None
+    center_fill_pixels: int | None = None
 
 
 def _ordered_images(source: Path) -> tuple[Path, ...]:
@@ -77,9 +86,14 @@ def _ordered_images(source: Path) -> tuple[Path, ...]:
 
 
 class OfflineReconstructionService:
-    def __init__(self, paths: ApplicationPaths) -> None:
+    def __init__(
+        self,
+        paths: ApplicationPaths,
+        center_references: CenterReferenceLibrary | None = None,
+    ) -> None:
         self._paths = paths
         self._intake = OfflineAcquisitionIntakeService(paths)
+        self._center_references = center_references or CenterReferenceLibrary(paths)
 
     @property
     def paths(self) -> ApplicationPaths:
@@ -97,6 +111,7 @@ class OfflineReconstructionService:
             raise OfflineReconstructionError("reconstruction side must be upper or lower")
         if preview_size not in {3000, 4000, 5000}:
             raise OfflineReconstructionError("preview size must be 3000, 4000, or 5000 pixels")
+        center_profile = self._center_references.require_profile(side)
         ordered = _ordered_images(source_directory)
         with Image.open(ordered[0]) as first:
             width, height = first.size
@@ -122,6 +137,11 @@ class OfflineReconstructionService:
                 flow_channels=("blue", "gray", "saturation"),
             ),
             progress=lambda current, total: progress("registering", current, total),
+        )
+        calibration = estimate_cycle_calibration(
+            evidence,
+            acquisition_id=acquisition_id,
+            side=side,
         )
         progress("validating", 0, 1)
         projective_profile = (
@@ -154,6 +174,21 @@ class OfflineReconstructionService:
             maximum_dimension=preview_size,
             square_size=preview_size,
         )
+        if preview.source_to_preview_matrix is None:
+            raise OfflineReconstructionError("preview mapping metadata is missing")
+        progress("completing_center", 0, 1)
+        center = apply_center_completion_to_preview(
+            self._paths,
+            preview_relative_path=preview.relative_path,
+            source_to_preview_matrix=preview.source_to_preview_matrix,
+            calibration=calibration.calibration,
+            profile=center_profile,
+        )
+        preview = replace(
+            preview,
+            sha256=center.sha256,
+            size_bytes=center.size_bytes,
+        )
         passed_join_count = sum(item.passed for item in solved.pair_validations)
         report_relative = f"completed/{acquisition_id}/reconstruction-report.json"
         report_path = self._paths.resolve_data_path(report_relative)
@@ -172,6 +207,25 @@ class OfflineReconstructionService:
                     "total_join_count": len(solved.pair_validations),
                     "failure_reasons": solved.failure_reasons,
                     "preview_relative_path": preview.relative_path,
+                    "center_completion": {
+                        "applied": True,
+                        "profile_id": center.profile_id,
+                        "reference_sha256": center_profile.asset.sha256,
+                        "rotation_degrees": center.rotation_degrees,
+                        "scale": center.scale,
+                        "filled_pixels": center.filled_pixels,
+                        "acquired_pixels_changed": center.acquired_pixels_changed,
+                        "target_center_px": [
+                            center.target_center_x,
+                            center.target_center_y,
+                        ],
+                        "target_opening_radius_px": center.target_opening_radius_px,
+                        "detected_flash_angles_degrees": (center.detected_flash_angles_degrees),
+                        "median_angular_residual_degrees": (center.median_angular_residual_degrees),
+                        "maximum_angular_residual_degrees": (
+                            center.maximum_angular_residual_degrees
+                        ),
+                    },
                 },
                 indent=2,
             )
@@ -192,4 +246,8 @@ class OfflineReconstructionService:
             preview=preview,
             report_relative_path=report_relative,
             failure_reasons=solved.failure_reasons,
+            center_completion_applied=True,
+            center_profile_id=center.profile_id,
+            center_rotation_degrees=center.rotation_degrees,
+            center_fill_pixels=center.filled_pixels,
         )

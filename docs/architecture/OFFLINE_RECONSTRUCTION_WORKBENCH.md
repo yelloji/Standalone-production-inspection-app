@@ -83,6 +83,63 @@ The repeatable 2026-07-24 proof produced:
 The preview and copied proof inputs are runtime data under an ignored `temp`
 location and are not source-controlled.
 
+## Approved Side-Specific Center Completion
+
+Offline reconstruction requires one checksum-validated reference for the
+selected side. The original reference photographs are commissioning assets,
+not source-controlled application files. A technical user imports them once
+through the native desktop picker. The backend verifies the exact approved
+SHA-256 value, decoded dimensions, and side before copying the file atomically
+into `data/configuration/center-references/`.
+
+The approved profiles are deliberately different:
+
+- upper uses the calibrated black plate only and aligns its white marker to
+  the image-1 acquisition start ray;
+- lower uses the complete black assembly with ten real silver retainers and
+  validates one cyclic pairing against the ten acquired flash positions, then
+  applies the commissioned marker-to-image-1 rotation offset. Flash peak drift
+  can reject a run but cannot move the steel retainers away from their approved
+  alignment.
+
+Every run independently recovers the fixed disc center and reference ray from
+all 16 neighbor transforms. The completed preview then:
+
+1. maps that native center into the selected output square;
+2. finds the enclosed central no-data component;
+3. rejects a component connected to the exterior or outside safe radius
+   bounds;
+4. solves the side-specific reference rotation;
+5. fills only pixels inside both the central no-data component and approved
+   reference mask;
+6. verifies that zero acquired pixels changed before atomically replacing the
+   preview.
+
+The reconstruction report records profile and reference checksum, rotation,
+scale, target center/radius, fill count, acquired-pixel change count, and lower
+flash/residual evidence. Reference-filled pixels remain ineligible for AI
+inference.
+
+Real `5000 x 5000` validation on 2026-07-24 produced:
+
+- lower 20% acquisition: `lower-center-approved-v1`, measured rotation
+  `160.5 degrees`, `8,930,086` center pixels filled, and zero acquired pixels
+  changed;
+- upper 60% acquisition: `upper-center-approved-v1`, measured rotation
+  `-65.400 degrees`, `8,864,750` center pixels filled, and zero acquired
+  pixels changed.
+
+The user UI check exposed a lower 60% peak-drift case where one flash maximum
+was measured at `297 degrees` instead of the approved proof's `292 degrees`.
+The earlier evidence-only policy moved the assembly to `162 degrees`. After
+the commissioned-offset correction, the same real input produced
+`160.095 degrees`, `8,945,916` filled pixels, zero acquired-pixel changes, and
+the analysis display reports the corrected angle.
+
+Both results visually match the approved proof constructions. Registration
+remains honestly labelled `Validation required` when the independent one-pixel
+gate fails; center completion never overrides that gate.
+
 ## Security and Portability
 
 - source selection is available only through the narrow Electron bridge;
@@ -97,8 +154,6 @@ location and are not source-controlled.
 ## Remaining Acceptance Work
 
 - user review of the real desktop workflow;
-- validation with the preferred 60% or 100% source set;
-- upper-side real-image run;
 - profile commissioning until every held-out point satisfies the production
   gate;
 - optional full-resolution BigTIFF publication after production validation;

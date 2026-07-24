@@ -7,12 +7,14 @@ import os
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 import cv2
 import numpy as np
 import numpy.typing as npt
 
 from backend.core.paths import ApplicationPaths
+from backend.domain.reconstruction import Matrix3x3
 from backend.reconstruction.rendering import FRAME_COUNT, RenderFrame
 
 
@@ -29,6 +31,7 @@ class ReconstructionPreview:
     height: int
     source_canvas_width: int
     source_canvas_height: int
+    source_to_preview_matrix: Matrix3x3 | None = None
 
 
 def _sha256(path: Path) -> str:
@@ -124,6 +127,7 @@ def render_reconstruction_preview(
         ),
         dtype=np.float64,
     )
+    source_to_preview = scale_matrix @ translation
     accumulator = np.zeros((preview_height, preview_width, 3), dtype=np.float32)
     total_weight = np.zeros((preview_height, preview_width), dtype=np.float32)
     y_distance = np.minimum(
@@ -199,4 +203,8 @@ def render_reconstruction_preview(
         height=preview_height,
         source_canvas_width=canvas_width,
         source_canvas_height=canvas_height,
+        source_to_preview_matrix=cast(
+            Matrix3x3,
+            tuple(tuple(float(value) for value in row) for row in source_to_preview),
+        ),
     )

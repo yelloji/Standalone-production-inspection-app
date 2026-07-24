@@ -1989,6 +1989,30 @@ p {
   white-space: nowrap;
 }
 
+.center-reference-card {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
+}
+
+.center-reference-card > div {
+  display: grid;
+  gap: 4px;
+}
+
+.center-reference-card > div span {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  text-transform: capitalize;
+}
+
+.center-reference-card > div strong {
+  font-size: 0.82rem;
+}
+
 .reconstruction-progress {
   display: grid;
   gap: 10px;
@@ -2065,7 +2089,7 @@ p {
 
 .reconstruction-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 10px;
 }
 

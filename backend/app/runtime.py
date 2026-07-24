@@ -18,6 +18,7 @@ from backend.database.engine import (
     database_path,
 )
 from backend.database.migration import upgrade_to_head
+from backend.services.center_reference_library import CenterReferenceLibrary
 from backend.services.model_import import ModelImportService
 from backend.services.model_library import ModelLibraryService
 from backend.services.offline_reconstruction import OfflineReconstructionService
@@ -39,6 +40,7 @@ def create_runtime_app() -> FastAPI:
         paths=paths,
         session_factory=session_factory,
     )
+    center_references = CenterReferenceLibrary(paths)
     application = create_app(
         ApiServices(
             session_factory=session_factory,
@@ -47,8 +49,9 @@ def create_runtime_app() -> FastAPI:
             model_jobs=model_jobs,
             pipelines=pipelines,
             reconstruction_jobs=ReconstructionJobDispatcher(
-                OfflineReconstructionService(paths),
+                OfflineReconstructionService(paths, center_references),
             ),
+            center_references=center_references,
         )
     )
     application.state.database_engine = engine

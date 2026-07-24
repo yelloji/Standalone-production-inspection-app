@@ -21,6 +21,10 @@ const runningJob = {
   report_relative_path: null,
   preview_width: null,
   preview_height: null,
+  center_completion_applied: null,
+  center_profile_id: null,
+  center_rotation_degrees: null,
+  center_fill_pixels: null,
   message: null,
 } as const
 
@@ -42,6 +46,10 @@ const completedJob = {
   report_relative_path: 'completed/offline-1/reconstruction-report.json',
   preview_width: 5000,
   preview_height: 5000,
+  center_completion_applied: true,
+  center_profile_id: 'upper-center-approved-v1',
+  center_rotation_degrees: -65.4,
+  center_fill_pixels: 8_864_750,
 } as const
 
 afterEach(() => {
@@ -64,10 +72,34 @@ describe('ValidationPage reconstruction continuity', () => {
         previewSize: 5000,
       }),
     )
-    const request = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      data: runningJob,
+    let currentJob: typeof runningJob | typeof completedJob = runningJob
+    const request = vi.fn().mockImplementation(({ path }: { path: string }) => {
+      const data =
+        path === '/api/v1/center-references'
+          ? [
+              {
+                side: 'upper',
+                profile_id: 'upper-center-approved-v1',
+                installed: true,
+                relative_path: 'configuration/center-references/upper.jpg',
+                sha256: '1'.repeat(64),
+                message: 'Approved reference ready',
+              },
+              {
+                side: 'lower',
+                profile_id: 'lower-center-approved-v1',
+                installed: true,
+                relative_path: 'configuration/center-references/lower.jpg',
+                sha256: '2'.repeat(64),
+                message: 'Approved reference ready',
+              },
+            ]
+          : currentJob
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        data,
+      })
     })
     Object.defineProperty(window, 'productionInspection', {
       configurable: true,
@@ -77,6 +109,7 @@ describe('ValidationPage reconstruction continuity', () => {
         backend: { request },
         models: { selectBundle: vi.fn() },
         acquisitions: { selectFolder: vi.fn() },
+        centerReferences: { selectImage: vi.fn() },
       },
     })
 
@@ -87,15 +120,12 @@ describe('ValidationPage reconstruction continuity', () => {
     expect(screen.getByText('V:\\acquisitions\\upper')).toBeInTheDocument()
     first.unmount()
 
-    request.mockResolvedValue({
-      ok: true,
-      status: 200,
-      data: completedJob,
-    })
+    currentJob = completedJob
     render(<ValidationPage />)
 
     expect(await screen.findByRole('heading', { name: 'Review preview' })).toBeInTheDocument()
     expect(screen.getByText('11 / 16')).toBeInTheDocument()
+    expect(screen.getByText('-65.40°')).toBeInTheDocument()
     expect(screen.getByText(/5000 × 5000 px/)).toBeInTheDocument()
     await waitFor(() =>
       expect(request).toHaveBeenCalledWith({

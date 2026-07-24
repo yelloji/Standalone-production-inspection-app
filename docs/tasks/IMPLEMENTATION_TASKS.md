@@ -839,6 +839,44 @@ Offline reconstruction workbench milestone prepared on 2026-07-24:
   full-resolution production artifacts remain explicit follow-up work;
 - this expanded Task 16 milestone remains uncommitted until user review.
 
+Approved center-completion milestone prepared on 2026-07-24:
+
+- added a portable application-owned center-reference library with native
+  desktop import and exact side-specific checksum/dimension validation;
+- kept the large copied proof bundle and source reference photographs ignored
+  and outside Git;
+- recovered the fixed disc center and image-1 reference ray automatically
+  from all 16 measured neighbor transforms;
+- integrated the committed upper marker alignment and lower cyclic
+  screen/flash solver into the `3000 x 3000`, `4000 x 4000`, and `5000 x
+  5000` preview workflow;
+- filled only the enclosed central no-data component and failed closed when
+  the opening was connected to the exterior or outside calibrated bounds;
+- recorded profile, checksum, rotation, scale, target geometry, fill count,
+  flash evidence, residual evidence, and acquired-pixel change count in the
+  reconstruction report;
+- added Configuration UI readiness/import status and prevented reconstruction
+  until the selected side's approved reference was installed;
+- proved a real lower 20% `5000 x 5000` result at `160.5 degrees` with
+  `8,930,086` filled center pixels and zero acquired-pixel changes;
+- proved a real upper 60% `5000 x 5000` result at `-65.400 degrees` with
+  `8,864,750` filled center pixels and zero acquired-pixel changes;
+- visually matched the previously approved lower interleaved-retainer and
+  upper covering-opening constructions;
+- corrected the user-observed lower 60% peak drift so flash evidence validates
+  the run while the commissioned marker-to-image-1 offset controls steel-screen
+  placement; the same input moved from the incorrect `162 degrees` to
+  `160.095 degrees` with zero acquired-pixel changes;
+- added a regression proving a shifted `297-degree` flash peak cannot move the
+  commissioned lower assembly and that the displayed analysis angle follows
+  the corrected placement;
+- passed 181 backend tests, 9 frontend tests, 3 Electron tests, strict
+  lint/type checks, and production builds;
+- passed visible Playwright checks at `1440 x 900` and `1024 x 768` with both
+  side references ready, safe Start disabling, no horizontal overflow, no
+  console errors, and no page errors;
+- this milestone remains uncommitted until user review.
+
 ### Task 17 - Production Run UI
 
 Status: `PLANNED`

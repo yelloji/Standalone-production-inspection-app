@@ -49,7 +49,20 @@ export interface ReconstructionJobSummary {
   readonly report_relative_path: string | null
   readonly preview_width: number | null
   readonly preview_height: number | null
+  readonly center_completion_applied: boolean | null
+  readonly center_profile_id: string | null
+  readonly center_rotation_degrees: number | null
+  readonly center_fill_pixels: number | null
   readonly message: string | null
+}
+
+export interface CenterReferenceSummary {
+  readonly side: 'upper' | 'lower'
+  readonly profile_id: string
+  readonly installed: boolean
+  readonly relative_path: string
+  readonly sha256: string | null
+  readonly message: string
 }
 
 export interface PipelineSummary {

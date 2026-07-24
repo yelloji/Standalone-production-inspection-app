@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import FileResponse
@@ -17,6 +17,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from backend.api.commands import RunCommandDispatcher
 from backend.api.contracts import (
     ArtifactSummary,
+    CenterReferenceImportRequest,
+    CenterReferenceSummary,
     CommandResponse,
     EventBatch,
     ModelImportRequest,
@@ -45,6 +47,11 @@ from backend.database.records import (
 )
 from backend.database.repositories import MetadataRepository
 from backend.domain.contracts import DiscSide, PipelineContract
+from backend.services.center_reference_library import (
+    CenterReferenceLibrary,
+    CenterReferenceLibraryError,
+    CenterReferenceStatus,
+)
 from backend.services.pipeline_lifecycle import (
     PipelineDraft,
     PipelineLifecycleError,
@@ -60,6 +67,7 @@ class ApiServices:
     model_jobs: ModelJobDispatcher | None = None
     pipelines: PipelineLifecycleService | None = None
     reconstruction_jobs: ReconstructionJobDispatcher | None = None
+    center_references: CenterReferenceLibrary | None = None
 
 
 def create_api_router(services: ApiServices) -> APIRouter:
@@ -159,6 +167,33 @@ def create_api_router(services: ApiServices) -> APIRouter:
                 request.preview_size,
             )
         )
+
+    @router.get(
+        "/center-references",
+        response_model=tuple[CenterReferenceSummary, ...],
+        tags=["reconstruction"],
+    )
+    def list_center_references() -> tuple[CenterReferenceSummary, ...]:
+        library = _require_center_references(services)
+        return tuple(_center_reference_summary(value) for value in library.statuses())
+
+    @router.post(
+        "/center-references/import",
+        response_model=CenterReferenceSummary,
+        tags=["reconstruction"],
+    )
+    def import_center_reference(
+        request: CenterReferenceImportRequest,
+    ) -> CenterReferenceSummary:
+        library = _require_center_references(services)
+        try:
+            result = library.install(
+                DiscSide(request.side),
+                Path(request.source_path),
+            )
+        except CenterReferenceLibraryError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        return _center_reference_summary(result)
 
     @router.get(
         "/reconstruction-jobs/{job_id}",
@@ -486,6 +521,23 @@ def _require_reconstruction_jobs(services: ApiServices) -> ReconstructionJobDisp
     return services.reconstruction_jobs
 
 
+def _require_center_references(services: ApiServices) -> CenterReferenceLibrary:
+    if services.center_references is None:
+        raise HTTPException(status_code=503, detail="center reference service is not ready")
+    return services.center_references
+
+
+def _center_reference_summary(value: CenterReferenceStatus) -> CenterReferenceSummary:
+    return CenterReferenceSummary(
+        side=cast(Literal["upper", "lower"], value.side.value),
+        profile_id=value.profile_id,
+        installed=value.installed,
+        relative_path=value.relative_path,
+        sha256=value.sha256,
+        message=value.message,
+    )
+
+
 def _reconstruction_job_summary(value: ReconstructionJob) -> ReconstructionJobSummary:
     result = value.result
     return ReconstructionJobSummary(
@@ -508,6 +560,10 @@ def _reconstruction_job_summary(value: ReconstructionJob) -> ReconstructionJobSu
         report_relative_path=None if result is None else result.report_relative_path,
         preview_width=None if result is None else result.preview.width,
         preview_height=None if result is None else result.preview.height,
+        center_completion_applied=(None if result is None else result.center_completion_applied),
+        center_profile_id=None if result is None else result.center_profile_id,
+        center_rotation_degrees=(None if result is None else result.center_rotation_degrees),
+        center_fill_pixels=None if result is None else result.center_fill_pixels,
         message=value.message,
     )
 

@@ -54,6 +54,17 @@ describe('backend bridge allow-list', () => {
     assert.deepEqual(
       validateBackendRequest({
         method: 'POST',
+        path: '/api/v1/center-references/import',
+      }),
+      {
+        method: 'POST',
+        path: '/api/v1/center-references/import',
+        body: undefined,
+      },
+    )
+    assert.deepEqual(
+      validateBackendRequest({
+        method: 'POST',
         path: '/api/v1/runs/run-001/start',
       }),
       {

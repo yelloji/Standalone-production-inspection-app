@@ -178,6 +178,36 @@ def test_lower_rotation_is_measured_from_current_evidence_not_fixed_to_160() -> 
     assert plan.maximum_absolute_angular_residual_degrees == pytest.approx(0.0)
 
 
+def test_commissioned_lower_offset_rejects_peak_drift_without_moving_screens() -> None:
+    profile = lower_profile().model_copy(
+        update={"commissioned_rotation_offset_degrees": -17.009488956364265}
+    )
+    plan = plan_lower_center_completion(
+        profile,
+        image_one_start_ray_degrees=79.767,
+        detected_flash_angles_degrees=(
+            12.0,
+            46.0,
+            77.0,
+            118.0,
+            149.0,
+            190.0,
+            221.0,
+            262.0,
+            297.0,
+            329.0,
+        ),
+        target_center=Point2D(x=1000.0, y=1200.0),
+        target_opening_radius_px=500.0,
+    )
+    assert plan.rotation_degrees == pytest.approx(160.0, abs=0.001)
+    assert plan.median_absolute_angular_residual_degrees == pytest.approx(2.5)
+    assert plan.maximum_absolute_angular_residual_degrees == pytest.approx(
+        5.0,
+        abs=0.001,
+    )
+
+
 def test_lower_alignment_rejects_missing_duplicate_or_bad_residual_evidence() -> None:
     with pytest.raises(CenterCompletionFailure, match="exactly 10"):
         plan_lower_center_completion(

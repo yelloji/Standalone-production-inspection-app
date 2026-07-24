@@ -17,6 +17,8 @@ const ROUTES: ReadonlyArray<{
   },
   { method: 'GET', pattern: /^\/api\/v1\/model-jobs\/[A-Za-z0-9._-]+$/ },
   { method: 'POST', pattern: /^\/api\/v1\/reconstruction-jobs$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/center-references$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/center-references\/import$/ },
   {
     method: 'GET',
     pattern: /^\/api\/v1\/reconstruction-jobs\/[A-Za-z0-9._-]+$/,

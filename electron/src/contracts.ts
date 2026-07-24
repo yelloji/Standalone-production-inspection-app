@@ -1,6 +1,7 @@
 export const BACKEND_REQUEST_CHANNEL = 'inspection:backend-request'
 export const MODEL_BUNDLE_SELECT_CHANNEL = 'inspection:select-model-bundle'
 export const ACQUISITION_FOLDER_SELECT_CHANNEL = 'inspection:select-acquisition-folder'
+export const CENTER_REFERENCE_SELECT_CHANNEL = 'inspection:select-center-reference'
 
 export type BackendMethod = 'GET' | 'POST'
 
@@ -27,5 +28,8 @@ export interface DesktopBridge {
   }
   readonly acquisitions: {
     selectFolder(): Promise<string | null>
+  }
+  readonly centerReferences: {
+    selectImage(side: 'upper' | 'lower'): Promise<string | null>
   }
 }

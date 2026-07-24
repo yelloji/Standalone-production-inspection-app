@@ -6,6 +6,7 @@ import { sendBackendRequest } from './backend-bridge'
 import {
   ACQUISITION_FOLDER_SELECT_CHANNEL,
   BACKEND_REQUEST_CHANNEL,
+  CENTER_REFERENCE_SELECT_CHANNEL,
   MODEL_BUNDLE_SELECT_CHANNEL,
 } from './contracts'
 
@@ -129,6 +130,27 @@ if (!ownsSingleInstance) {
       })
       return result.canceled ? null : (result.filePaths[0] ?? null)
     })
+    ipcMain.handle(
+      CENTER_REFERENCE_SELECT_CHANNEL,
+      async (_event, side: unknown) => {
+        if (
+          mainWindow === null ||
+          (side !== 'upper' && side !== 'lower')
+        ) {
+          return null
+        }
+        const result = await dialog.showOpenDialog(mainWindow, {
+          title: `Select approved ${side} center reference`,
+          buttonLabel: 'Install reference',
+          properties: ['openFile'],
+          filters: [
+            { name: 'Reference image', extensions: ['jpg', 'jpeg'] },
+            { name: 'All files', extensions: ['*'] },
+          ],
+        })
+        return result.canceled ? null : (result.filePaths[0] ?? null)
+      },
+    )
     mainWindow = createWindow()
 
     app.on('activate', () => {

@@ -62,6 +62,13 @@ class CenterCompletionProfile(ContractModel):
     preserve_acquired_pixels: Literal[True] = True
     reference_pixels_inference_eligible: Literal[False] = False
     allow_approved_screen_replacement: bool = False
+    commissioned_rotation_offset_degrees: (
+        Annotated[
+            float,
+            Field(ge=-180, le=180),
+        ]
+        | None
+    ) = None
 
     @model_validator(mode="after")
     def validate_side_strategy(self) -> CenterCompletionProfile:
@@ -72,6 +79,8 @@ class CenterCompletionProfile(ContractModel):
                 raise ValueError("upper profile requires a black-plate-only asset")
             if self.allow_approved_screen_replacement:
                 raise ValueError("upper profile cannot replace acquired screen pixels")
+            if self.commissioned_rotation_offset_degrees is not None:
+                raise ValueError("upper profile cannot define a lower rotation offset")
         elif self.side is DiscSide.LOWER:
             if self.strategy is not CenterStrategy.LOWER_COMPLETE_ASSEMBLY:
                 raise ValueError("lower profile requires the complete-assembly strategy")

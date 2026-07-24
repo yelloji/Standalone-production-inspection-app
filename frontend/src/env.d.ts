@@ -20,6 +20,9 @@ interface ProductionInspectionBridge {
   readonly acquisitions: {
     selectFolder(): Promise<string | null>
   }
+  readonly centerReferences: {
+    selectImage(side: 'upper' | 'lower'): Promise<string | null>
+  }
 }
 
 interface Window {

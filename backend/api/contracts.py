@@ -61,6 +61,20 @@ class ReconstructionJobRequest(ApiContract):
     preview_size: Literal[3000, 4000, 5000] = 5000
 
 
+class CenterReferenceImportRequest(ApiContract):
+    source_path: Annotated[str, Field(min_length=1, max_length=4096)]
+    side: Literal["upper", "lower"]
+
+
+class CenterReferenceSummary(ApiContract):
+    side: Literal["upper", "lower"]
+    profile_id: str
+    installed: bool
+    relative_path: SafeRelativePath
+    sha256: Sha256Hex | None = None
+    message: Annotated[str, Field(max_length=500)]
+
+
 class ReconstructionJobSummary(ApiContract):
     job_id: str
     status: Literal["queued", "running", "completed", "failed"]
@@ -79,6 +93,10 @@ class ReconstructionJobSummary(ApiContract):
     report_relative_path: str | None = None
     preview_width: int | None = None
     preview_height: int | None = None
+    center_completion_applied: bool | None = None
+    center_profile_id: str | None = None
+    center_rotation_degrees: float | None = None
+    center_fill_pixels: int | None = None
     message: Annotated[str, Field(max_length=1000)] | None = None
 
 

@@ -268,6 +268,34 @@ def plan_lower_center_completion(
             item[2],
         ),
     )
+    if profile.commissioned_rotation_offset_degrees is not None:
+        rotation = _normalize_angle(coarse_rotation + profile.commissioned_rotation_offset_degrees)
+        commissioned_candidates = []
+        for cyclic_shift in range(10):
+            candidate_target = target_angles[cyclic_shift:] + target_angles[:cyclic_shift]
+            candidate_residuals = tuple(
+                _circular_difference(source + rotation, target)
+                for source, target in zip(
+                    source_angles,
+                    candidate_target,
+                    strict=True,
+                )
+            )
+            candidate_score = median(abs(value) for value in candidate_residuals)
+            candidate_maximum = max(abs(value) for value in candidate_residuals)
+            commissioned_candidates.append(
+                (
+                    candidate_score,
+                    candidate_maximum,
+                    cyclic_shift,
+                    candidate_residuals,
+                    candidate_target,
+                )
+            )
+        score, maximum, shift, residuals, shifted_target = min(
+            commissioned_candidates,
+            key=lambda item: (item[0], item[1], item[2]),
+        )
     if score > profile.maximum_median_angular_residual_degrees:
         raise CenterCompletionFailure(
             "screen/flash median angular residual exceeds the profile limit"

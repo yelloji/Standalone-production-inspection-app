@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { inspectionApi } from '../api/client'
-import type { ReconstructionJobSummary } from '../api/contracts'
+import type {
+  CenterReferenceSummary,
+  ReconstructionJobSummary,
+} from '../api/contracts'
 import { PageHeading, StatusBadge, Surface } from '../components/Primitives'
 
 const RECONSTRUCTION_SESSION_KEY = 'inspection.reconstruction.session.v1'
@@ -24,6 +27,12 @@ export function ValidationPage() {
     initialSession?.previewSize ?? 5000,
   )
   const [job, setJob] = useState<ReconstructionJobSummary | null>(null)
+  const [centerReferences, setCenterReferences] = useState<
+    readonly CenterReferenceSummary[]
+  >([])
+  const [installingSide, setInstallingSide] = useState<
+    'upper' | 'lower' | null
+  >(null)
   const [error, setError] = useState<string | null>(null)
   const pollingController = useRef<AbortController | null>(null)
 
@@ -36,6 +45,52 @@ export function ValidationPage() {
     void monitorJob(initialSession.jobId, controller)
     return () => controller.abort()
   }, [initialSession])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void loadCenterReferences(controller.signal)
+    return () => controller.abort()
+  }, [])
+
+  async function loadCenterReferences(signal?: AbortSignal) {
+    try {
+      setCenterReferences(await inspectionApi.centerReferences(signal))
+    } catch (reason) {
+      if (!(reason instanceof DOMException && reason.name === 'AbortError')) {
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : 'Center reference status could not be loaded.',
+        )
+      }
+    }
+  }
+
+  async function installCenterReference(selectedSide: 'upper' | 'lower') {
+    setError(null)
+    const bridge = window.productionInspection
+    if (!bridge) {
+      setError('Reference installation is available in the desktop application.')
+      return
+    }
+    const selected = await bridge.centerReferences.selectImage(selectedSide)
+    if (!selected) {
+      return
+    }
+    setInstallingSide(selectedSide)
+    try {
+      await inspectionApi.importCenterReference(selected, selectedSide)
+      await loadCenterReferences()
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : 'The approved center reference could not be installed.',
+      )
+    } finally {
+      setInstallingSide(null)
+    }
+  }
 
   async function monitorJob(jobId: string, controller: AbortController) {
     try {
@@ -78,7 +133,14 @@ export function ValidationPage() {
   }
 
   async function reconstruct() {
-    if (!sourcePath || job?.status === 'running' || job?.status === 'queued') {
+    if (
+      !sourcePath ||
+      !centerReferences.some(
+        (reference) => reference.side === side && reference.installed,
+      ) ||
+      job?.status === 'running' ||
+      job?.status === 'queued'
+    ) {
       return
     }
     setError(null)
@@ -102,6 +164,10 @@ export function ValidationPage() {
   }
 
   const busy = job?.status === 'queued' || job?.status === 'running'
+  const selectedReference = centerReferences.find(
+    (reference) => reference.side === side,
+  )
+  const centerReady = selectedReference?.installed === true
   const progress =
     job && job.progress_total > 0
       ? Math.round((job.progress_current / job.progress_total) * 100)
@@ -167,9 +233,34 @@ export function ValidationPage() {
             </button>
             <span title={sourcePath}>{sourcePath || 'No acquisition selected'}</span>
           </div>
+          <div className="center-reference-card">
+            <div>
+              <span>Approved {side} center</span>
+              <strong>
+                {centerReady
+                  ? 'Ready for automatic completion'
+                  : 'Reference installation required'}
+              </strong>
+            </div>
+            <StatusBadge
+              label={centerReady ? 'Ready' : 'Not installed'}
+              tone={centerReady ? 'positive' : 'warning'}
+            />
+            {!centerReady ? (
+              <button
+                className="secondary-button"
+                disabled={busy || installingSide !== null}
+                onClick={() => installCenterReference(side)}
+              >
+                {installingSide === side
+                  ? 'Installing reference…'
+                  : `Install ${side} reference`}
+              </button>
+            ) : null}
+          </div>
           <button
             className="primary-button"
-            disabled={!sourcePath || busy}
+            disabled={!sourcePath || !centerReady || busy}
             onClick={reconstruct}
           >
             {busy ? 'Reconstructing…' : 'Start reconstruction'}
@@ -214,6 +305,14 @@ export function ValidationPage() {
                 <Metric
                   label="Passing joins"
                   value={`${job?.passed_join_count ?? 0} / ${job?.total_join_count ?? 16}`}
+                />
+                <Metric
+                  label="Center completion"
+                  value={
+                    job?.center_completion_applied
+                      ? `${job.center_rotation_degrees?.toFixed(2) ?? '—'}°`
+                      : '—'
+                  }
                 />
               </div>
               <p className="reconstruction-saved-path">
@@ -290,6 +389,7 @@ function stageLabel(stage: string): string {
       registering: 'Aligning neighboring frames',
       validating: 'Checking independent pixel evidence',
       rendering: 'Rendering full-cycle preview',
+      completing_center: 'Completing approved center assembly',
       completed: 'Reconstruction complete',
       failed: 'Reconstruction stopped',
     }[stage] ?? stage
