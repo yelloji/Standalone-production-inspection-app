@@ -684,7 +684,7 @@ User-directed Task 15 revision prepared on 2026-07-24:
 
 ### Task 16 - Setup & Validation UI
 
-Status: `PLANNED`
+Status: `IN PROGRESS - MODEL LIBRARY AND PIPELINE LIFECYCLE READY FOR USER REVIEW`
 
 Work:
 
@@ -693,6 +693,151 @@ Work:
 - offline test execution;
 - validation/performance diagnostics;
 - approve/activate/rollback workflows.
+
+Model Library milestone prepared on 2026-07-24:
+
+- composed a portable local runtime with application-owned data layout, SQLite
+  migration, model storage, and model-job services while leaving production
+  run commands safely unavailable;
+- reused the committed staged bundle importer and all checksum, archive/path,
+  ONNX graph, schema, tensor, SAHI, and parity-evidence validation;
+- added one background model worker so import, archive, and filesystem deletion
+  never execute inside HTTP request handlers;
+- added typed APIs for model import jobs, job status, archive, delete, and
+  dependency-aware model summaries;
+- added safe lifecycle rules: active or pipeline-referenced models cannot be
+  archived; deletion requires an archived, unreferenced model;
+- added rollback-safe owned-file removal that restores the model directory if
+  database deletion fails;
+- added a narrow native Electron ZIP selector without exposing arbitrary
+  Electron, Node, or filesystem APIs to the renderer;
+- added a professional Configuration Mode library with empty/loading/error/
+  success states, multiple versions, states, dates, archive, protected, and
+  two-step permanent delete behavior;
+- added real SQLite service/API tests and frontend/Electron workflow tests;
+- passed 153 backend tests, 10 frontend/Electron tests, strict typing, lint,
+  production builds, and a zero-vulnerability dependency audit;
+- passed Playwright Model Library layout/action/mode-separation checks at
+  1440x900 with no overflow, console errors, or page errors;
+- no ONNX model, database, runtime data, screenshot, transfer file, or absolute
+  production path is part of the source change;
+- this Task 16 milestone remains uncommitted until user review.
+
+Desktop review correction on 2026-07-24:
+
+- fixed the sandboxed preload so its runtime imports only Electron and shares
+  local contracts as erased TypeScript types;
+- added a compiled-output regression test that rejects any local module
+  `require` from the preload;
+- this restores the native model-bundle picker in the Electron window after a
+  development-session restart.
+
+Pipeline lifecycle milestone prepared on 2026-07-24:
+
+- made reconstruction and AI inference independent optional stages while
+  requiring at least one enabled production stage;
+- allowed reconstruction-only pipelines without an artificial model
+  dependency and inference-only pipelines without reconstruction settings;
+- added immutable application-owned JSON pipeline contracts with canonical
+  checksums and SQLite lifecycle metadata;
+- added automatic monotonically increasing revisions under a stable pipeline
+  identity;
+- added contract/dependency validation, deliberate approve-and-activate,
+  exactly-one-active database enforcement, and rollback by reactivating a
+  preserved approved version;
+- added typed local API and Electron allow-list routes for create, list,
+  validate, activate, and active-pipeline resolution;
+- separated Configuration Mode into Pipeline Builder, Model Library, Offline
+  Validation, and System Status pages;
+- added modular stage cards for acquisition, reconstruction, ONNX model,
+  normal/SAHI inference, confidence, overlap, batch, and immutable draft save;
+- made Run Mode load and show the exact active pipeline name and revision;
+- kept Start disabled until Task 17 connects actual production execution;
+- explicitly kept full saved-image offline execution visible as the next
+  validation layer instead of claiming that configuration validation is an
+  accuracy/performance test;
+- added real SQLite service/API/migration tests for modular modes, versioning,
+  activation, rollback, checksums, corruption, and invalid transitions;
+- passed 160 backend tests, 10 frontend/Electron tests, strict Python and
+  TypeScript typing, lint and formatting, production builds, Git whitespace
+  checks, and a zero-vulnerability dependency audit;
+- passed Playwright verification of independent stage toggles, conditional
+  model settings, approve/activate, Run Mode active identity, separate
+  configuration pages, 1440x900 layout, and zero overflow, console, or page
+  errors;
+- this expanded Task 16 milestone remains uncommitted until user review.
+
+Automatic acquisition contract milestone prepared on 2026-07-24:
+
+- confirmed that production operators never browse for or order source images;
+- added a portable automatic-folder naming contract with mandatory `{cycle}`
+  and `{position}` tokens, fixed position width, file-stability interval, and
+  incomplete-cycle timeout;
+- kept the machine-specific watched folder outside the portable pipeline so a
+  transferred pipeline cannot silently monitor the wrong station path;
+- added deterministic filename generation, exact parsing, and positional
+  ordering that never depends on lexical directory order, timestamps, or file
+  arrival order;
+- rejected unsafe templates, traversal, wrong extensions, invalid/out-of-range
+  positions, duplicate positions, mixed cycle identities, and incomplete
+  cycles;
+- added Pipeline Builder controls and examples for automatic naming, stability,
+  and timeout configuration;
+- added Run Mode presentation for Waiting, Receiving, Verifying, Validating
+  order, and Processing states with no operator file-selection controls;
+- passed 168 backend tests and 11 frontend/Electron tests plus strict
+  formatting, lint, typing, production builds, and dependency audit;
+- passed Playwright configuration and Run Mode verification at 1440x900 with
+  no horizontal overflow, console errors, or page errors;
+- actual background folder watching, stable-file observation, station folder
+  mapping, and automatic run dispatch remain Task 17 implementation work and
+  are not falsely reported as running yet.
+
+Offline reconstruction workbench milestone prepared on 2026-07-24:
+
+- reprioritized Task 16 before Run Mode automation for the Monday CEO
+  demonstration;
+- added pinned headless OpenCV to the Python backend without adding vision or
+  filesystem authority to Electron/React;
+- added deterministic full-cycle image evidence for every adjacent pair and
+  the mandatory `16 -> 1` loop closure;
+- added color-aware coarse discovery and bounded multi-plane dense optical-flow
+  fallback for the current RGB-compensated compressed inputs;
+- preserved the strict spatially held-out one-pixel production gate;
+- separated review-only diagnostic transforms from production-publishable
+  transforms so a useful preview cannot be reported as approved;
+- added bounded atomic uncropped PNG rendering without generating multi-gigabyte
+  proof artifacts during commissioning;
+- added one background reconstruction worker, typed submit/status/preview APIs,
+  native Electron folder selection, stage progress, result metrics, and an
+  in-app full-disc viewer;
+- proved the real lower-side 20% set: all 16 joins completed, median `0.4744
+  px`, p95 `0.8443 px`, maximum `2.0291 px`, and `11 / 16` strict join passes;
+- correctly labels the real result `Validation required`; production transforms
+  remain blocked because the maximum is above one pixel;
+- generated a `3979 x 4000` review preview from an uncropped `31822 x 31988`
+  source canvas in an ignored portable temp data root;
+- passed 177 backend tests, 11 frontend/Electron tests, full strict Python and
+  TypeScript typing, lint, and production builds;
+- passed Playwright empty/completed Reconstruction UI checks at 1440x900 with
+  the real preview loaded, no horizontal overflow, no console errors, and no
+  page errors;
+- fixed Content Security Policy to allow preview images only from the local
+  loopback backend;
+- fixed Configuration navigation continuity so leaving Offline Validation does
+  not lose visible ownership of the background job; returning restores the
+  folder, side, job identity, live progress, and eventual result;
+- added component and visible router round-trip regression checks proving the
+  same upper-side job reconnects after visiting Pipeline Builder, with no
+  console or page errors;
+- added a persistent output-size selector for exact `3000 x 3000`, `4000 x
+  4000`, or default `5000 x 5000` automatically saved PNGs;
+- fits and centers the complete reconstruction proportionally inside the
+  selected square, with no crop or geometric stretching, and displays the
+  saved application-relative path and decoded output dimensions;
+- 60%/100% and upper-side proof data, final profile commissioning, and
+  full-resolution production artifacts remain explicit follow-up work;
+- this expanded Task 16 milestone remains uncommitted until user review.
 
 ### Task 17 - Production Run UI
 

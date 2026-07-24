@@ -38,6 +38,10 @@ def create_app(services: ApiServices | None = None) -> FastAPI:
         finally:
             if selected.commands is not None:
                 selected.commands.close()
+            if selected.model_jobs is not None:
+                selected.model_jobs.close()
+            if selected.reconstruction_jobs is not None:
+                selected.reconstruction_jobs.close()
 
     application = FastAPI(
         title="Standalone Production Inspection API",

@@ -2,7 +2,9 @@
 
 ## Status
 
-Online integration is `PENDING`. No connector protocol is selected or authorized for implementation.
+External signalling/acknowledgement integration remains `PENDING`. A same-PC
+automatic folder intake based on a configured filename contract is now a
+confirmed production requirement.
 
 ## Principle
 
@@ -13,6 +15,39 @@ Offline Folder Connector ---+
                             +--> Acquisition Manifest --> Common Pipeline
 Future Online Connector ----+
 ```
+
+## Confirmed Automatic Folder Intake
+
+The production pipeline stores a portable naming contract, not a
+machine-specific absolute folder:
+
+```text
+template: {cycle}_{position}.jpg
+position width: 2
+expected positions: 01 through 16
+side: configured by pipeline
+```
+
+The station configuration separately maps the acquisition source to a local
+approved folder. This prevents moving a pipeline bundle to another PC from
+silently monitoring the wrong absolute path.
+
+Run Mode requires no file selection. Once started, it reports:
+
+```text
+Waiting for acquisition
+Receiving 1/16 ... 16/16
+Verifying files are stable
+Validating ordered acquisition
+Processing
+Completed / Rejected
+```
+
+The filename template must contain exactly one `{cycle}` token and one
+`{position}` token. Position is parsed from the configured token, never from
+filesystem sorting or timestamps. Unknown names, duplicate positions,
+different cycle identities, incomplete sets, and files that continue changing
+are not processed.
 
 ## External Information Required
 
@@ -64,6 +99,9 @@ Any connector must support:
 ## Safety Rules
 
 - Never process a folder merely because the first file appeared.
+- A complete naming match is discovery evidence, not proof that bytes are
+  finished; every file must remain size/mtime stable for the configured
+  interval and pass full decoding before claim.
 - Never modify the external software's source files.
 - Never claim the same external run twice.
 - A duplicate signal returns the existing run/result identity.

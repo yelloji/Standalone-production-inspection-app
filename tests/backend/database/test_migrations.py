@@ -27,7 +27,7 @@ def test_migration_creates_expected_schema_and_indexes(database_engine: Engine) 
     inspector = inspect(database_engine)
 
     assert set(inspector.get_table_names()) == EXPECTED_TABLES
-    assert current_revision(database_engine) == "0003_run_orchestration"
+    assert current_revision(database_engine) == "0004_modular_pipeline_lifecycle"
     assert {index["name"] for index in inspector.get_indexes("inspection_runs")} >= {
         "ix_inspection_runs_acquisition_id",
         "ix_inspection_runs_status_created_at",
@@ -38,6 +38,13 @@ def test_migration_creates_expected_schema_and_indexes(database_engine: Engine) 
     assert {index["name"] for index in inspector.get_indexes("run_stage_checkpoints")} >= {
         "ix_run_stage_checkpoints_run_status"
     }
+    assert {index["name"] for index in inspector.get_indexes("pipeline_snapshots")} >= {
+        "uq_pipeline_snapshots_single_active"
+    }
+    pipeline_columns = {
+        column["name"]: column for column in inspector.get_columns("pipeline_snapshots")
+    }
+    assert pipeline_columns["model_bundle_id"]["nullable"] is True
 
 
 def test_upgrade_is_idempotent_on_real_sqlite_file(
@@ -48,7 +55,7 @@ def test_upgrade_is_idempotent_on_real_sqlite_file(
     try:
         upgrade_to_head(engine)
         upgrade_to_head(engine)
-        assert current_revision(engine) == "0003_run_orchestration"
+        assert current_revision(engine) == "0004_modular_pipeline_lifecycle"
     finally:
         engine.dispose()
 

@@ -18,7 +18,9 @@ Run Mode (default, operator)
                  |
                  v
 Configuration Mode (technical)
-  - Setup & Validation
+  - Pipeline Builder
+  - Model Library
+  - Offline Validation
   - System Status
   - Return to Run Mode
 ```
@@ -70,6 +72,17 @@ Not Ready -> Ready -> Starting -> Running -> Processing -> Alert/Result
 Any active state -> Faulted
 ```
 
+For an automatic folder pipeline, the waiting/receiving portion is shown in
+plain language:
+
+```text
+Waiting for acquisition -> Receiving 1/16 ... 16/16
+ -> Verifying files -> Validating order -> Processing
+```
+
+The operator never browses for production images. Technical configuration owns
+the filename template and station folder mapping.
+
 Every state must show a plain-language explanation and permitted next action.
 
 ### Readiness panel
@@ -116,6 +129,40 @@ Protected technical workspace for:
 - approval and activation.
 
 Technical settings are grouped by responsibility rather than placed on one large form.
+
+### Configuration navigation
+
+- **Pipeline Builder** is the first page because reconstruction-only products
+  must not be forced to select a model.
+- **Model Library** imports and manages validated ONNX bundles independently.
+- **Offline Validation** owns controlled saved-image execution, evidence,
+  accuracy, and performance checks.
+- **System Status** owns health and diagnostics.
+
+Pipeline Builder presents reconstruction and AI inference as independent
+stage cards. Disabling a stage also disables and excludes its settings from
+the saved contract. Prediction mapping becomes applicable only when both
+stages are enabled.
+
+Saved versions are shown beneath the builder with explicit lifecycle actions:
+`Validate`, `Approve & activate`, and `Used by Run Mode`. Activation requires a
+confirmation and never edits the active snapshot in place.
+
+### Offline acquisition preparation
+
+The first functional Offline Validation step is acquisition preparation:
+
+- select a saved pipeline revision;
+- select a folder through the desktop application;
+- show all 16 ordered images before copying;
+- allow explicit Up/Down correction when filenames do not implement the
+  pipeline naming contract;
+- show the calculated `0` through `337.5` degree positions;
+- validate and copy in the background;
+- present success or an actionable technical error.
+
+Offline preparation never requires Run Mode and never changes the active
+production pipeline.
 
 ## Inspection History
 
@@ -171,6 +218,8 @@ Technical users may open detailed diagnostics. Operators receive only useful pro
 - Configuration Mode has its own stable technical left navigation;
 - Configuration Mode never shows the live Run workspace;
 - both modes retain clear application/backend and active pipeline identity;
+- Run Mode resolves and displays the exact active pipeline name and revision
+  from the backend rather than using placeholder text;
 - Configuration Mode has a persistent Return to Run Mode action;
 - non-blocking notification/alert areas remain mode appropriate.
 

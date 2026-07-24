@@ -1,11 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import {
-  BACKEND_REQUEST_CHANNEL,
-  type BackendRequest,
-  type BackendResponse,
-  type DesktopBridge,
-} from './contracts'
+import type { BackendRequest, BackendResponse, DesktopBridge } from './contracts'
+
+// Sandboxed Electron preloads may not require local modules. Keep channel
+// values self-contained here while sharing only erased TypeScript types.
+const BACKEND_REQUEST_CHANNEL = 'inspection:backend-request'
+const MODEL_BUNDLE_SELECT_CHANNEL = 'inspection:select-model-bundle'
+const ACQUISITION_FOLDER_SELECT_CHANNEL = 'inspection:select-acquisition-folder'
 
 const bridge: DesktopBridge = Object.freeze({
   platform: process.platform,
@@ -13,6 +14,14 @@ const bridge: DesktopBridge = Object.freeze({
   backend: Object.freeze({
     request: (request: BackendRequest) =>
       ipcRenderer.invoke(BACKEND_REQUEST_CHANNEL, request) as Promise<BackendResponse>,
+  }),
+  models: Object.freeze({
+    selectBundle: () =>
+      ipcRenderer.invoke(MODEL_BUNDLE_SELECT_CHANNEL) as Promise<string | null>,
+  }),
+  acquisitions: Object.freeze({
+    selectFolder: () =>
+      ipcRenderer.invoke(ACQUISITION_FOLDER_SELECT_CHANNEL) as Promise<string | null>,
   }),
 })
 

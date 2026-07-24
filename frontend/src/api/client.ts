@@ -2,8 +2,11 @@ import type {
   EventBatch,
   HealthResponse,
   ModelSummary,
+  ModelJobSummary,
+  PipelineDraftRequest,
   PipelineSummary,
   ReadinessResponse,
+  ReconstructionJobSummary,
   RunSummary,
 } from './contracts'
 
@@ -46,8 +49,109 @@ export class InspectionApiClient {
     return this.request('/api/v1/models?limit=50&offset=0', { signal })
   }
 
+  importModel(sourcePath: string): Promise<ModelJobSummary> {
+    return this.request('/api/v1/models/import', {
+      method: 'POST',
+      body: { source_path: sourcePath },
+    })
+  }
+
+  archiveModel(modelBundleId: string): Promise<ModelJobSummary> {
+    return this.request(
+      `/api/v1/models/${encodeURIComponent(modelBundleId)}/archive`,
+      { method: 'POST' },
+    )
+  }
+
+  deleteModel(modelBundleId: string): Promise<ModelJobSummary> {
+    return this.request(
+      `/api/v1/models/${encodeURIComponent(modelBundleId)}/delete`,
+      { method: 'POST' },
+    )
+  }
+
+  modelJob(jobId: string, signal?: AbortSignal): Promise<ModelJobSummary> {
+    return this.request(`/api/v1/model-jobs/${encodeURIComponent(jobId)}`, {
+      signal,
+    })
+  }
+
+  submitReconstruction(
+    sourcePath: string,
+    side: 'upper' | 'lower',
+    previewSize: 3000 | 4000 | 5000,
+  ): Promise<ReconstructionJobSummary> {
+    return this.request('/api/v1/reconstruction-jobs', {
+      method: 'POST',
+      body: { source_path: sourcePath, side, preview_size: previewSize },
+    })
+  }
+
+  reconstructionJob(
+    jobId: string,
+    signal?: AbortSignal,
+  ): Promise<ReconstructionJobSummary> {
+    return this.request(
+      `/api/v1/reconstruction-jobs/${encodeURIComponent(jobId)}`,
+      { signal },
+    )
+  }
+
+  async waitForReconstructionJob(
+    jobId: string,
+    onProgress: (job: ReconstructionJobSummary) => void,
+    signal?: AbortSignal,
+  ): Promise<ReconstructionJobSummary> {
+    while (true) {
+      const job = await this.reconstructionJob(jobId, signal)
+      onProgress(job)
+      if (job.status === 'completed' || job.status === 'failed') {
+        return job
+      }
+      await wait(500, signal)
+    }
+  }
+
+  async waitForModelJob(
+    jobId: string,
+    signal?: AbortSignal,
+  ): Promise<ModelJobSummary> {
+    while (true) {
+      const job = await this.modelJob(jobId, signal)
+      if (job.status === 'completed' || job.status === 'failed') {
+        return job
+      }
+      await wait(500, signal)
+    }
+  }
+
   pipelines(signal?: AbortSignal): Promise<readonly PipelineSummary[]> {
     return this.request('/api/v1/pipelines?limit=50&offset=0', { signal })
+  }
+
+  activePipeline(signal?: AbortSignal): Promise<PipelineSummary | null> {
+    return this.request('/api/v1/pipelines/active', { signal })
+  }
+
+  createPipeline(request: PipelineDraftRequest): Promise<PipelineSummary> {
+    return this.request('/api/v1/pipelines', {
+      method: 'POST',
+      body: request,
+    })
+  }
+
+  validatePipeline(pipelineSnapshotId: string): Promise<PipelineSummary> {
+    return this.request(
+      `/api/v1/pipelines/${encodeURIComponent(pipelineSnapshotId)}/validate`,
+      { method: 'POST' },
+    )
+  }
+
+  activatePipeline(pipelineSnapshotId: string): Promise<PipelineSummary> {
+    return this.request(
+      `/api/v1/pipelines/${encodeURIComponent(pipelineSnapshotId)}/activate`,
+      { method: 'POST' },
+    )
   }
 
   runs(signal?: AbortSignal): Promise<readonly RunSummary[]> {
@@ -129,6 +233,20 @@ function readErrorMessage(value: unknown): string {
     return value.detail
   }
   return 'The inspection service could not complete the request.'
+}
+
+function wait(milliseconds: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(resolve, milliseconds)
+    signal?.addEventListener(
+      'abort',
+      () => {
+        window.clearTimeout(timer)
+        reject(new DOMException('The operation was aborted.', 'AbortError'))
+      },
+      { once: true },
+    )
+  })
 }
 
 export const inspectionApi = new InspectionApiClient()

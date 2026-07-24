@@ -14,6 +14,12 @@ interface ProductionInspectionBridge {
       readonly data: unknown
     }>
   }
+  readonly models: {
+    selectBundle(): Promise<string | null>
+  }
+  readonly acquisitions: {
+    selectFolder(): Promise<string | null>
+  }
 }
 
 interface Window {

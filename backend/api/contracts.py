@@ -6,7 +6,13 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-from backend.domain.contracts import AcquisitionSource, DiscSide
+from backend.domain.contracts import (
+    AcquisitionConfiguration,
+    AcquisitionSource,
+    DiscSide,
+    InferenceConfiguration,
+    ReconstructionConfiguration,
+)
 from backend.domain.value_objects import ContractIdentifier, SafeRelativePath, Sha256Hex
 
 
@@ -32,6 +38,48 @@ class ModelSummary(ApiContract):
     state: str
     sha256: Sha256Hex
     created_at: AwareDatetime
+    referenced_by_pipelines: bool = False
+    can_archive: bool = False
+    can_delete: bool = False
+
+
+class ModelImportRequest(ApiContract):
+    source_path: Annotated[str, Field(min_length=1, max_length=4096)]
+
+
+class ModelJobSummary(ApiContract):
+    job_id: str
+    action: Literal["import", "archive", "delete"]
+    status: Literal["queued", "running", "completed", "failed"]
+    model_bundle_id: str | None = None
+    message: Annotated[str, Field(max_length=500)] | None = None
+
+
+class ReconstructionJobRequest(ApiContract):
+    source_path: Annotated[str, Field(min_length=1, max_length=4096)]
+    side: Literal["upper", "lower"]
+    preview_size: Literal[3000, 4000, 5000] = 5000
+
+
+class ReconstructionJobSummary(ApiContract):
+    job_id: str
+    status: Literal["queued", "running", "completed", "failed"]
+    stage: str
+    progress_current: Annotated[int, Field(ge=0)]
+    progress_total: Annotated[int, Field(ge=1)]
+    acquisition_id: str | None = None
+    production_approved: bool | None = None
+    validation_median_px: float | None = None
+    validation_p95_px: float | None = None
+    validation_maximum_px: float | None = None
+    passed_join_count: int | None = None
+    total_join_count: int | None = None
+    preview_url: str | None = None
+    preview_relative_path: str | None = None
+    report_relative_path: str | None = None
+    preview_width: int | None = None
+    preview_height: int | None = None
+    message: Annotated[str, Field(max_length=1000)] | None = None
 
 
 class PipelineSummary(ApiContract):
@@ -40,9 +88,26 @@ class PipelineSummary(ApiContract):
     revision: int
     display_name: str
     state: str
-    model_bundle_id: str
+    model_bundle_id: str | None
+    acquisition_mode: str
+    expected_frame_count: int
+    filename_template: str | None
+    reconstruction_enabled: bool
+    inference_enabled: bool
+    inference_mode: str | None
+    can_validate: bool
+    can_activate: bool
     sha256: Sha256Hex
     created_at: AwareDatetime
+
+
+class PipelineDraftRequest(ApiContract):
+    pipeline_id: ContractIdentifier
+    display_name: Annotated[str, Field(min_length=1, max_length=500)]
+    model_bundle_id: ContractIdentifier | None = None
+    acquisition: AcquisitionConfiguration
+    inference: InferenceConfiguration
+    reconstruction: ReconstructionConfiguration
 
 
 class RunCreateRequest(ApiContract):

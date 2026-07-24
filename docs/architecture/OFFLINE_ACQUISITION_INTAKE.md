@@ -46,6 +46,27 @@ Task 5 creates no UI, reconstruction, inference, or run orchestration. Task 14
 exposes intake through the local API and Task 16 provides technical selection
 and ordering controls.
 
+## Confirmed Offline Validation Workflow
+
+Task 16 exposes this committed intake core through the protected Offline
+Validation workspace:
+
+1. Select a saved pipeline revision.
+2. Select one source folder through the native desktop dialog.
+3. Inspect the supported image inventory without modifying source files.
+4. Resolve order from the pipeline filename contract when it matches exactly,
+   otherwise require explicit technical 1-16 ordering.
+5. Display every filename, position, angle, format, and discovered geometry for
+   confirmation.
+6. Start a background validation/copy job.
+7. Fully decode, hash, reject duplicate content, copy to application-owned
+   staging, revalidate, and atomically publish the acquisition manifest.
+8. Show durable acquisition identity and validation evidence.
+
+Selecting or inspecting a folder does not activate a pipeline, run inference,
+or change production. Offline mode uses the selected saved pipeline revision
+only as immutable validation context.
+
 ## Task 5 Verification
 
 Completed on 2026-07-23:

@@ -1,24 +1,19 @@
 import { Icon } from '../components/Icon'
+import { ModelLibrary } from '../components/ModelLibrary'
 import { PageHeading, StatusBadge, Surface } from '../components/Primitives'
 
 const setupAreas = [
   {
-    title: 'Model bundle',
-    description: 'Import and verify a protected ONNX model package.',
-    icon: 'layers' as const,
-    step: '01',
-  },
-  {
     title: 'Inspection pipeline',
     description: 'Create a versioned configuration without changing production.',
     icon: 'settings' as const,
-    step: '02',
+    step: 'Next',
   },
   {
     title: 'Offline validation',
     description: 'Prove accuracy and performance before approval.',
     icon: 'shield' as const,
-    step: '03',
+    step: 'Later',
   },
 ]
 
@@ -31,13 +26,14 @@ export function SetupPage() {
         description="Commission models, reconstruction, and inspection settings through a controlled versioned workflow."
         action={<StatusBadge label="Technical mode" tone="info" />}
       />
+      <ModelLibrary />
       <Surface className="setup-workflow">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Commissioning path</p>
-            <h2>Configure with confidence</h2>
+            <p className="eyebrow">Coming next</p>
+            <h2>Complete the production pipeline</h2>
           </div>
-          <span className="setup-workflow__note">Available in Task 16</span>
+          <span className="setup-workflow__note">Task 16 continues</span>
         </div>
         <div className="setup-steps">
           {setupAreas.map((area) => (

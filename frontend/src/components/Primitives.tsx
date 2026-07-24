@@ -24,7 +24,7 @@ export function Button({
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly icon?: IconName
-  readonly variant?: 'primary' | 'secondary' | 'quiet'
+  readonly variant?: 'primary' | 'secondary' | 'quiet' | 'danger'
 }) {
   return (
     <button className={`button button--${variant}`} {...props}>

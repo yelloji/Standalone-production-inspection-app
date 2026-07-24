@@ -16,10 +16,12 @@ from backend.core.serialization import (
 from backend.domain.contracts import (
     AcquisitionConfiguration,
     AcquisitionContract,
+    AcquisitionMode,
     AcquisitionSource,
     ApplicationConfiguration,
     ArtifactContract,
     ArtifactKind,
+    AutomaticAcquisitionConfiguration,
     BoundingBox,
     DiscSide,
     ErrorContract,
@@ -203,6 +205,52 @@ def test_invalid_sahi_and_reconstruction_combinations_are_rejected() -> None:
             enabled=True,
             segment_count=16,
             degrees_per_segment=20,
+        )
+
+
+def test_automatic_acquisition_requires_safe_explicit_tokens() -> None:
+    automatic = AutomaticAcquisitionConfiguration(filename_template="{cycle}_{position}.jpg")
+    configuration = AcquisitionConfiguration(
+        source=AcquisitionSource.ONLINE,
+        expected_frame_count=16,
+        side=DiscSide.UPPER,
+        mode=AcquisitionMode.AUTOMATIC_FOLDER,
+        automatic=automatic,
+    )
+
+    assert configuration.automatic == automatic
+    with pytest.raises(ValidationError):
+        AutomaticAcquisitionConfiguration(filename_template="disc_{position}.jpg")
+    with pytest.raises(ValidationError):
+        AutomaticAcquisitionConfiguration(filename_template="{cycle}/{position}.jpg")
+    with pytest.raises(ValidationError):
+        AcquisitionConfiguration(
+            source=AcquisitionSource.ONLINE,
+            expected_frame_count=16,
+            mode=AcquisitionMode.AUTOMATIC_FOLDER,
+        )
+
+
+def test_pipeline_stages_are_independently_optional_but_not_all_disabled() -> None:
+    reconstruction_only = make_pipeline().model_copy(
+        update={
+            "model_bundle_id": None,
+            "inference": InferenceConfiguration(enabled=False),
+        }
+    )
+    inference_only = make_pipeline().model_copy(
+        update={"reconstruction": ReconstructionConfiguration(enabled=False)}
+    )
+
+    assert PipelineContract.model_validate(reconstruction_only.model_dump()).model_bundle_id is None
+    assert not PipelineContract.model_validate(inference_only.model_dump()).reconstruction.enabled
+
+    with pytest.raises(ValidationError):
+        PipelineContract.model_validate(
+            {
+                **reconstruction_only.model_dump(),
+                "reconstruction": ReconstructionConfiguration(enabled=False).model_dump(),
+            }
         )
 
 

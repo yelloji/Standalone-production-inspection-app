@@ -95,6 +95,7 @@ class ProjectiveReconstructionResult:
     optimizer_succeeded: bool
     optimizer_message: str
     optimizer_cost: float
+    diagnostic_frame_to_reference_matrices: tuple[Matrix3x3, ...] | None
     frame_to_reference_matrices: tuple[Matrix3x3, ...] | None
     pair_validations: tuple[ProjectivePairValidation, ...]
     validation_median_px: float | None
@@ -232,6 +233,7 @@ def solve_projective_reconstruction(
             False,
             "solver not started",
             math.inf,
+            None,
             None,
             (),
             None,
@@ -391,6 +393,7 @@ def solve_projective_reconstruction(
         optimizer_succeeded=bool(optimized.success),
         optimizer_message=str(optimized.message),
         optimizer_cost=float(optimized.cost),
+        diagnostic_frame_to_reference_matrices=matrices,
         frame_to_reference_matrices=matrices if passed else None,
         pair_validations=tuple(pair_validations),
         validation_median_px=overall_median,

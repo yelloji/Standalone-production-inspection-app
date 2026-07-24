@@ -1,4 +1,6 @@
 export const BACKEND_REQUEST_CHANNEL = 'inspection:backend-request'
+export const MODEL_BUNDLE_SELECT_CHANNEL = 'inspection:select-model-bundle'
+export const ACQUISITION_FOLDER_SELECT_CHANNEL = 'inspection:select-acquisition-folder'
 
 export type BackendMethod = 'GET' | 'POST'
 
@@ -19,5 +21,11 @@ export interface DesktopBridge {
   readonly isPackaged: boolean
   readonly backend: {
     request(request: BackendRequest): Promise<BackendResponse>
+  }
+  readonly models: {
+    selectBundle(): Promise<string | null>
+  }
+  readonly acquisitions: {
+    selectFolder(): Promise<string | null>
   }
 }

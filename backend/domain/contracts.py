@@ -45,6 +45,11 @@ class AcquisitionSource(str, Enum):
     ONLINE = "online"
 
 
+class AcquisitionMode(str, Enum):
+    MANUAL_FOLDER = "manual_folder"
+    AUTOMATIC_FOLDER = "automatic_folder"
+
+
 class DiscSide(str, Enum):
     UPPER = "upper"
     LOWER = "lower"
@@ -107,16 +112,45 @@ class SahiConfiguration(ContractModel):
 
 
 class InferenceConfiguration(ContractModel):
-    mode: InferenceMode
-    confidence_threshold: UnitInterval
+    enabled: bool = True
+    mode: InferenceMode | None = None
+    confidence_threshold: UnitInterval | None = None
     sahi: SahiConfiguration | None = None
 
     @model_validator(mode="after")
     def validate_mode_configuration(self) -> InferenceConfiguration:
+        if not self.enabled:
+            if any(
+                value is not None for value in (self.mode, self.confidence_threshold, self.sahi)
+            ):
+                raise ValueError("disabled inference must not define inference settings")
+            return self
+        if self.mode is None or self.confidence_threshold is None:
+            raise ValueError("enabled inference requires mode and confidence threshold")
         if self.mode is InferenceMode.SAHI and self.sahi is None:
             raise ValueError("SAHI mode requires slicing configuration")
         if self.mode is InferenceMode.DIRECT and self.sahi is not None:
             raise ValueError("direct mode must not include SAHI configuration")
+        return self
+
+
+class AutomaticAcquisitionConfiguration(ContractModel):
+    filename_template: Annotated[str, Field(min_length=5, max_length=255)]
+    position_width: Annotated[int, Field(ge=1, le=6)] = 2
+    stable_for_milliseconds: Annotated[int, Field(ge=250, le=60_000)] = 1_500
+    incomplete_cycle_timeout_seconds: Annotated[int, Field(ge=1, le=86_400)] = 120
+
+    @model_validator(mode="after")
+    def validate_filename_template(self) -> AutomaticAcquisitionConfiguration:
+        if self.filename_template.count("{cycle}") != 1:
+            raise ValueError("filename template requires exactly one {cycle} token")
+        if self.filename_template.count("{position}") != 1:
+            raise ValueError("filename template requires exactly one {position} token")
+        if any(character in self.filename_template for character in '\\/<>:"|?*'):
+            raise ValueError("filename template contains an unsafe filename character")
+        remaining = self.filename_template.replace("{cycle}", "").replace("{position}", "")
+        if "{" in remaining or "}" in remaining:
+            raise ValueError("filename template contains an unknown token")
         return self
 
 
@@ -125,6 +159,16 @@ class AcquisitionConfiguration(ContractModel):
     expected_frame_count: Annotated[int, Field(ge=1, le=100_000)]
     ordered: bool = True
     side: DiscSide = DiscSide.NOT_APPLICABLE
+    mode: AcquisitionMode = AcquisitionMode.MANUAL_FOLDER
+    automatic: AutomaticAcquisitionConfiguration | None = None
+
+    @model_validator(mode="after")
+    def validate_intake_mode(self) -> AcquisitionConfiguration:
+        if self.mode is AcquisitionMode.AUTOMATIC_FOLDER and self.automatic is None:
+            raise ValueError("automatic folder intake requires filename settings")
+        if self.mode is AcquisitionMode.MANUAL_FOLDER and self.automatic is not None:
+            raise ValueError("manual folder intake must not define automatic settings")
+        return self
 
 
 class ReconstructionConfiguration(ContractModel):
@@ -174,10 +218,20 @@ class PipelineContract(ContractModel):
     pipeline_id: ContractIdentifier
     revision: Annotated[int, Field(ge=1)]
     display_name: NonEmptyText
-    model_bundle_id: ContractIdentifier
+    model_bundle_id: ContractIdentifier | None = None
     acquisition: AcquisitionConfiguration
     inference: InferenceConfiguration
     reconstruction: ReconstructionConfiguration
+
+    @model_validator(mode="after")
+    def validate_enabled_stages(self) -> PipelineContract:
+        if not self.reconstruction.enabled and not self.inference.enabled:
+            raise ValueError("pipeline requires reconstruction or inference")
+        if self.inference.enabled and self.model_bundle_id is None:
+            raise ValueError("enabled inference requires a model bundle")
+        if not self.inference.enabled and self.model_bundle_id is not None:
+            raise ValueError("disabled inference must not reference a model bundle")
+        return self
 
 
 class AcquisitionContract(ContractModel):

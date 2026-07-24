@@ -12,7 +12,7 @@
   },
   "scripts": {
     "dev": "concurrently --kill-others --names backend,frontend,electron \"npm:dev:backend\" \"npm:dev:frontend\" \"npm:dev:electron\"",
-    "dev:backend": "python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:backend": "python -m uvicorn backend.app.runtime:app --reload --host 127.0.0.1 --port 8000",
     "dev:frontend": "npm run dev --workspace frontend",
     "dev:electron": "npm run dev --workspace electron",
     "build": "npm run build --workspace frontend && npm run build --workspace electron",

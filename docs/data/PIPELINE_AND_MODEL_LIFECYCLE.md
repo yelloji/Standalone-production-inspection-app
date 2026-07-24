@@ -20,22 +20,70 @@ A pipeline snapshot identifies and configures:
 - online connector configuration reference;
 - software/contract versions.
 
+For automatic folder acquisition it also stores the portable filename
+template, exact positional width/order, file-stability interval, and incomplete
+cycle timeout. The machine-specific watched folder is station configuration,
+not part of the portable pipeline snapshot.
+
+The stage graph is modular:
+
+```text
+Acquisition/Input (required)
+  |-- Reconstruction (optional)
+  |-- AI inference (optional)
+  |     `-- Normal/direct or SAHI
+  |-- Prediction mapping (only when reconstruction and inference are enabled)
+  `-- Durable result/artifacts
+```
+
+At least one of reconstruction or AI inference must be enabled. A
+reconstruction-only pipeline has no model dependency. An inference-only
+pipeline keeps predictions against source-image evidence and does not create a
+reconstructed-disc artifact.
+
 ## Pipeline States
 
 ```text
-Draft -> Testing -> Validated -> Approved -> Active -> Retired
-  \-> Rejected/Archived
+Draft -> Configuration Validated -> Approved/Active
+                                      |
+                                      `-> previous Active becomes Approved
 ```
 
 - `Draft`: editable technical configuration.
-- `Testing`: used only for controlled offline/commissioning runs.
-- `Validated`: required automated and technical checks passed.
+- `Validated`: the immutable contract, checksum, enabled-stage dependencies,
+  and selected model passed configuration validation.
 - `Approved`: authorized but not necessarily active.
 - `Active`: selectable by Production Run Mode.
 - `Retired`: preserved for history/rollback evidence, not new runs.
 - `Rejected/Archived`: retained with reason, never usable in production.
 
-Only a deliberate activation action changes the active version. Editing an approved/active pipeline creates a new draft version.
+Only a deliberate activation action changes the active version. Exactly one
+snapshot may be active. Editing an approved/active pipeline creates a new draft
+revision. Activating another validated revision demotes the previous active
+snapshot to `Approved`, preserving a deliberate rollback path.
+
+The application-owned SQLite database is authoritative for lifecycle state and
+the active selection. Every database record points to an application-owned,
+canonical JSON contract with a stored SHA-256 checksum. Run Mode resolves the
+single active snapshot from the database; it never accepts a manually edited
+loose configuration file.
+
+## Configuration Workflow
+
+1. Create or revise a pipeline draft.
+2. Enable reconstruction, AI inference, or both.
+3. Configure only the enabled stages.
+4. Save a new immutable revision.
+5. Validate the saved contract and dependencies.
+6. Run controlled offline acquisition/performance validation when that
+   execution layer is commissioned.
+7. Approve and activate deliberately.
+8. Run Mode loads the exact active revision on application start.
+
+The current Task 16 implementation completes steps 1-5 and 7-8 for contract
+and dependency validation. Controlled full-image offline execution and its
+performance evidence remain a separate visible validation layer; the UI does
+not falsely present that future execution as already completed.
 
 ## Model Bundle
 

@@ -1,5 +1,6 @@
 # Local transfer/reference bundle (never commit)
 /brake-disc-production-transfer-*/
+/inspection-runtime/
 
 # Python
 __pycache__/

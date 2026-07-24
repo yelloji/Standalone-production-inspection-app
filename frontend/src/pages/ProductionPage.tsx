@@ -1,12 +1,17 @@
-import { Link } from 'react-router'
+import { Link, useOutletContext } from 'react-router'
 
+import type { PipelineSummary } from '../api/contracts'
 import { Icon } from '../components/Icon'
 import { Button, PageHeading, StatusBadge, Surface } from '../components/Primitives'
 import { useBackendStatus } from '../state/backend-status'
 
 export function ProductionPage() {
   const backend = useBackendStatus()
-  const coreReady = backend.readiness?.status === 'ready'
+  const { activePipeline } = useOutletContext<{
+    readonly activePipeline: PipelineSummary | null
+  }>()
+  const productionReady =
+    backend.connection === 'connected' && activePipeline !== null
 
   return (
     <div className="page page--production">
@@ -16,8 +21,8 @@ export function ProductionPage() {
         description="Start inspection and follow each completed acquisition cycle from one clear workspace."
         action={
           <StatusBadge
-            label={coreReady ? 'Core services ready' : 'Setup required'}
-            tone={coreReady ? 'positive' : 'warning'}
+            label={productionReady ? 'Pipeline active' : 'Setup required'}
+            tone={productionReady ? 'positive' : 'warning'}
           />
         }
       />
@@ -35,15 +40,21 @@ export function ProductionPage() {
           <div className="run-card__content">
             <p className="eyebrow">Current state</p>
             <h2>
-              {coreReady ? 'Pipeline approval required' : 'System setup required'}
+              {productionReady && activePipeline.acquisition_mode === 'automatic_folder'
+                ? 'Ready to monitor acquisitions'
+                : productionReady
+                  ? 'Ready for production'
+                  : 'System setup required'}
             </h2>
             <p>
-              {coreReady
-                ? 'A technician must validate and activate the inspection pipeline before production can start.'
-                : 'The inspection station is waiting for technical configuration.'}
+              {productionReady
+                ? activePipeline.acquisition_mode === 'automatic_folder'
+                  ? `Waiting for ${activePipeline.expected_frame_count} images matching ${activePipeline.filename_template}.`
+                  : `${activePipeline.display_name} revision ${activePipeline.revision} is approved and active.`
+                : 'The inspection station is waiting for an approved active pipeline.'}
             </p>
             <Button disabled>Start production run</Button>
-            <small>Start unlocks only when the station is ready for production.</small>
+            <small>Run execution will be connected in the Production Run task.</small>
           </div>
         </Surface>
 
@@ -87,18 +98,47 @@ export function ProductionPage() {
         </Surface>
       </div>
 
-      <div className={`operator-message ${coreReady ? '' : 'operator-message--warning'}`}>
+      {productionReady && activePipeline.acquisition_mode === 'automatic_folder' ? (
+        <Surface className="intake-status">
+          <div className="intake-status__heading">
+            <div>
+              <p className="eyebrow">Automatic acquisition intake</p>
+              <h2>Waiting for acquisition</h2>
+            </div>
+            <StatusBadge label={`0 / ${activePipeline.expected_frame_count} received`} />
+          </div>
+          <div className="intake-progress" aria-label="Automatic intake workflow">
+            <span className="is-current">Waiting</span>
+            <span>Receiving images</span>
+            <span>Verifying files</span>
+            <span>Validating order</span>
+            <span>Processing</span>
+          </div>
+          <p>
+            Images are detected and ordered automatically. Production never guesses from
+            timestamps and never processes a partially written cycle.
+          </p>
+        </Surface>
+      ) : null}
+
+      <div
+        className={`operator-message ${
+          productionReady ? '' : 'operator-message--warning'
+        }`}
+      >
         <span className="operator-message__icon" aria-hidden="true">
-          {coreReady ? '✓' : '!'}
+          {productionReady ? '✓' : '!'}
         </span>
         <div>
           <strong>
-            {coreReady ? 'Core system is available' : 'Configuration is required'}
+            {productionReady
+              ? 'Production pipeline is active'
+              : 'Configuration is required'}
           </strong>
           <span>
-            {coreReady
-              ? 'Production remains locked until an approved pipeline is active.'
-              : 'Please ask a technician to complete station setup.'}
+            {productionReady
+              ? 'Run Mode loaded the exact approved pipeline snapshot.'
+              : 'Please ask a technician to validate and activate a pipeline.'}
           </span>
         </div>
       </div>

@@ -66,10 +66,41 @@ technical actions. Activation updates the old active model and new model in one
 database transaction. The previous valid/approved model and its immutable
 files remain available for rollback.
 
-## Task Boundary
+## Task 16 Model Library Integration
 
-Task 4 adds no API endpoint or UI. Task 14 exposes the service through typed
-local APIs, and Task 16 provides the technical model-management interface.
+The Configuration Mode Model Library now exposes the committed importer through
+a controlled desktop workflow:
+
+- Electron selects one local validated ZIP bundle through a native file dialog;
+- the renderer receives no general filesystem or Electron API;
+- the API submits import to a single background model worker and immediately
+  returns a job identity;
+- the UI polls bounded job state and refreshes durable model metadata after
+  completion;
+- the portable runtime owns SQLite and model storage beneath the resolved data
+  root;
+- import remains `Valid`, never active.
+
+Multiple immutable versions may coexist. The library shows model name, version,
+identifier, state, import date, dependency protection, and available actions.
+
+Archive and deletion are intentionally separate:
+
+1. Active models cannot be archived.
+2. Models referenced by any saved pipeline cannot be archived or deleted.
+3. Archive changes an unused model to `Retired` but preserves its files.
+4. Only a retired, unreferenced model may be permanently deleted.
+5. Permanent deletion moves owned files aside before the database transaction;
+   a database failure restores them.
+
+Model import/archive/delete operations never run inside HTTP request handlers.
+Authentication for protected technical access remains a pending product
+decision; current APIs remain loopback-only.
+
+## Original Task Boundary
+
+Task 4 added no API endpoint or UI. Task 14 established the typed local
+boundary. Task 16 now provides the technical Model Library interface.
 
 ## Task 4 Verification
 

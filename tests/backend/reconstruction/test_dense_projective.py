@@ -133,6 +133,7 @@ def test_joint_projective_solve_recovers_exact_cycle_with_closure() -> None:
     assert result.passed
     assert result.optimizer_succeeded
     assert result.frame_to_reference_matrices is not None
+    assert result.diagnostic_frame_to_reference_matrices == result.frame_to_reference_matrices
     assert result.validation_maximum_px is not None
     assert result.validation_maximum_px < 1.0e-5
     assert len(result.pair_validations) == 16
@@ -169,6 +170,7 @@ def test_held_out_outlier_blocks_transforms_and_identifies_loop_closure() -> Non
     )
     assert not result.passed
     assert result.frame_to_reference_matrices is None
+    assert result.diagnostic_frame_to_reference_matrices is not None
     assert not result.pair_validations[-1].passed
     assert result.pair_validations[-1].is_loop_closure
     assert any("16->1" in reason for reason in result.failure_reasons)

@@ -11,10 +11,22 @@ const configurationNavigation: ReadonlyArray<{
   readonly icon: IconName
 }> = [
   {
-    to: '/configuration/setup',
-    label: 'Setup & Validation',
-    description: 'Models and pipelines',
+    to: '/configuration/pipelines',
+    label: 'Pipeline Builder',
+    description: 'Stages and versions',
+    icon: 'settings',
+  },
+  {
+    to: '/configuration/models',
+    label: 'Model Library',
+    description: 'Validated ONNX models',
     icon: 'layers',
+  },
+  {
+    to: '/configuration/validation',
+    label: 'Offline Validation',
+    description: 'Test before activation',
+    icon: 'shield',
   },
   {
     to: '/configuration/system',

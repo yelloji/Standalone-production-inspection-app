@@ -1,9 +1,13 @@
 import path from 'node:path'
 
-import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, session, shell } from 'electron'
 
 import { sendBackendRequest } from './backend-bridge'
-import { BACKEND_REQUEST_CHANNEL } from './contracts'
+import {
+  ACQUISITION_FOLDER_SELECT_CHANNEL,
+  BACKEND_REQUEST_CHANNEL,
+  MODEL_BUNDLE_SELECT_CHANNEL,
+} from './contracts'
 
 const DEVELOPMENT_RENDERER_URL = 'http://127.0.0.1:5173'
 const EXTERNAL_PROTOCOLS = new Set(['https:'])
@@ -99,6 +103,32 @@ if (!ownsSingleInstance) {
     ipcMain.handle(BACKEND_REQUEST_CHANNEL, (_event, request: unknown) =>
       sendBackendRequest(request),
     )
+    ipcMain.handle(MODEL_BUNDLE_SELECT_CHANNEL, async () => {
+      if (mainWindow === null) {
+        return null
+      }
+      const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Select validated ONNX model bundle',
+        buttonLabel: 'Select bundle',
+        properties: ['openFile'],
+        filters: [
+          { name: 'Model bundle', extensions: ['zip'] },
+          { name: 'All files', extensions: ['*'] },
+        ],
+      })
+      return result.canceled ? null : (result.filePaths[0] ?? null)
+    })
+    ipcMain.handle(ACQUISITION_FOLDER_SELECT_CHANNEL, async () => {
+      if (mainWindow === null) {
+        return null
+      }
+      const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Select ordered 16-image acquisition',
+        buttonLabel: 'Select acquisition',
+        properties: ['openDirectory'],
+      })
+      return result.canceled ? null : (result.filePaths[0] ?? null)
+    })
     mainWindow = createWindow()
 
     app.on('activate', () => {

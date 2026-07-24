@@ -3,7 +3,7 @@
 ## Status
 
 - Documentation foundation: `APPROVED`
-- Current implementation task: `TASK 15 - COMMITTED`
+- Current implementation task: `TASK 16 - OFFLINE RECONSTRUCTION READY FOR USER REVIEW`
 - Application foundation started: Yes
 - Database foundation started: Yes
 - Production UI started: Yes
@@ -18,6 +18,7 @@
 - Task 13 committed: Yes
 - Task 14 committed: Yes
 - Task 15 committed: Yes
+- Task 16 committed: No - expanded milestone awaiting user review
 
 ## Authority
 
@@ -51,6 +52,7 @@ When documents conflict, use this priority:
 - [Database Foundation](architecture/DATABASE_FOUNDATION.md)
 - [Manual ONNX Bundle Import](architecture/MODEL_BUNDLE_IMPORT.md)
 - [Offline Acquisition Intake](architecture/OFFLINE_ACQUISITION_INTAKE.md)
+- [Offline Reconstruction Workbench](architecture/OFFLINE_RECONSTRUCTION_WORKBENCH.md)
 - [Reconstruction Core Geometry](architecture/RECONSTRUCTION_CORE_GEOMETRY.md)
 - [Modular Projective Reconstruction](architecture/MODULAR_PROJECTIVE_RECONSTRUCTION.md)
 - [Side-Specific Center Completion](architecture/SIDE_SPECIFIC_CENTER_COMPLETION.md)

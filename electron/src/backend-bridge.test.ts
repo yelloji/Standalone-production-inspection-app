@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import { validateBackendRequest } from './backend-bridge'
@@ -13,6 +15,39 @@ describe('backend bridge allow-list', () => {
       {
         method: 'GET',
         path: '/api/v1/events?after_sequence=12&limit=50',
+        body: undefined,
+      },
+    )
+    assert.deepEqual(
+      validateBackendRequest({
+        method: 'POST',
+        path: '/api/v1/models/crack-v1/archive',
+      }),
+      {
+        method: 'POST',
+        path: '/api/v1/models/crack-v1/archive',
+        body: undefined,
+      },
+    )
+    assert.deepEqual(
+      validateBackendRequest({
+        method: 'POST',
+        path: '/api/v1/pipelines/brake-disc-r2/activate',
+      }),
+      {
+        method: 'POST',
+        path: '/api/v1/pipelines/brake-disc-r2/activate',
+        body: undefined,
+      },
+    )
+    assert.deepEqual(
+      validateBackendRequest({
+        method: 'GET',
+        path: '/api/v1/reconstruction-jobs/job-001',
+      }),
+      {
+        method: 'GET',
+        path: '/api/v1/reconstruction-jobs/job-001',
         body: undefined,
       },
     )
@@ -46,5 +81,13 @@ describe('backend bridge allow-list', () => {
         }),
       /Invalid backend request/,
     )
+  })
+})
+
+describe('sandboxed preload build', () => {
+  it('does not require local modules at runtime', () => {
+    const compiledPreload = readFileSync(path.join(__dirname, 'preload.js'), 'utf8')
+
+    assert.doesNotMatch(compiledPreload, /require\(["']\.\//)
   })
 })

@@ -112,6 +112,12 @@ class PipelineSnapshotRow(Base):
         CheckConstraint("revision >= 1", name="pipeline_snapshot_revision_positive"),
         CheckConstraint("length(sha256) = 64", name="pipeline_snapshot_sha256_length"),
         Index("ix_pipeline_snapshots_state_created_at", "state", "created_at"),
+        Index(
+            "uq_pipeline_snapshots_single_active",
+            "state",
+            unique=True,
+            sqlite_where=text("state = 'active'"),
+        ),
     )
 
     pipeline_snapshot_id: Mapped[str] = mapped_column(String(128), primary_key=True)
@@ -119,9 +125,9 @@ class PipelineSnapshotRow(Base):
     revision: Mapped[int] = mapped_column(Integer, nullable=False)
     display_name: Mapped[str] = mapped_column(String(500), nullable=False)
     state: Mapped[str] = mapped_column(String(32), nullable=False)
-    model_bundle_id: Mapped[str] = mapped_column(
+    model_bundle_id: Mapped[str | None] = mapped_column(
         ForeignKey("model_bundles.model_bundle_id", ondelete="RESTRICT"),
-        nullable=False,
+        nullable=True,
     )
     contract_path: Mapped[str] = mapped_column(String(1024), nullable=False, unique=True)
     sha256: Mapped[str] = mapped_column(String(64), nullable=False)

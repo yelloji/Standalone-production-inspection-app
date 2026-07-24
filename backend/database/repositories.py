@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from dataclasses import asdict
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.database.models import (
@@ -69,6 +69,21 @@ class MetadataRepository:
         row.state = state
         self._session.flush()
 
+    def count_pipeline_snapshots_for_model(self, model_bundle_id: str) -> int:
+        statement = (
+            select(func.count())
+            .select_from(PipelineSnapshotRow)
+            .where(PipelineSnapshotRow.model_bundle_id == model_bundle_id)
+        )
+        return int(self._session.scalar(statement) or 0)
+
+    def delete_model_bundle(self, model_bundle_id: str) -> None:
+        row = self._session.get(ModelBundleRow, model_bundle_id)
+        if row is None:
+            raise KeyError(f"unknown model bundle: {model_bundle_id}")
+        self._session.delete(row)
+        self._session.flush()
+
     def add_pipeline_snapshot(self, value: PipelineSnapshotMetadata) -> None:
         self._session.add(PipelineSnapshotRow(**asdict(value)))
         self._session.flush()
@@ -79,6 +94,28 @@ class MetadataRepository:
     ) -> PipelineSnapshotMetadata | None:
         row = self._session.get(PipelineSnapshotRow, pipeline_snapshot_id)
         return _pipeline_snapshot_metadata(row) if row is not None else None
+
+    def get_active_pipeline_snapshot(self) -> PipelineSnapshotMetadata | None:
+        statement = select(PipelineSnapshotRow).where(PipelineSnapshotRow.state == "active")
+        row = self._session.scalar(statement)
+        return _pipeline_snapshot_metadata(row) if row is not None else None
+
+    def next_pipeline_revision(self, pipeline_id: str) -> int:
+        statement = select(func.max(PipelineSnapshotRow.revision)).where(
+            PipelineSnapshotRow.pipeline_id == pipeline_id
+        )
+        return int(self._session.scalar(statement) or 0) + 1
+
+    def set_pipeline_snapshot_state(
+        self,
+        pipeline_snapshot_id: str,
+        state: str,
+    ) -> None:
+        row = self._session.get(PipelineSnapshotRow, pipeline_snapshot_id)
+        if row is None:
+            raise KeyError(f"unknown pipeline snapshot: {pipeline_snapshot_id}")
+        row.state = state
+        self._session.flush()
 
     def list_pipeline_snapshots(
         self,

@@ -48,7 +48,7 @@ class PipelineSnapshotMetadata:
     revision: int
     display_name: str
     state: str
-    model_bundle_id: str
+    model_bundle_id: str | None
     contract_path: str
     sha256: str
     created_at: datetime

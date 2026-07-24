@@ -10,7 +10,24 @@ const ROUTES: ReadonlyArray<{
   { method: 'GET', pattern: /^\/api\/v1\/health$/ },
   { method: 'GET', pattern: /^\/api\/v1\/readiness$/ },
   { method: 'GET', pattern: /^\/api\/v1\/models(?:\?.*)?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/models\/import$/ },
+  {
+    method: 'POST',
+    pattern: /^\/api\/v1\/models\/[A-Za-z0-9._-]+\/(?:archive|delete)$/,
+  },
+  { method: 'GET', pattern: /^\/api\/v1\/model-jobs\/[A-Za-z0-9._-]+$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/reconstruction-jobs$/ },
+  {
+    method: 'GET',
+    pattern: /^\/api\/v1\/reconstruction-jobs\/[A-Za-z0-9._-]+$/,
+  },
   { method: 'GET', pattern: /^\/api\/v1\/pipelines(?:\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/pipelines\/active$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/pipelines$/ },
+  {
+    method: 'POST',
+    pattern: /^\/api\/v1\/pipelines\/[A-Za-z0-9._-]+\/(?:validate|activate)$/,
+  },
   { method: 'GET', pattern: /^\/api\/v1\/runs(?:\?.*)?$/ },
   { method: 'POST', pattern: /^\/api\/v1\/runs$/ },
   { method: 'GET', pattern: /^\/api\/v1\/runs\/[A-Za-z0-9._-]+$/ },
@@ -33,7 +50,10 @@ export function validateBackendRequest(value: unknown): BackendRequest {
   if ((method !== 'GET' && method !== 'POST') || typeof path !== 'string') {
     throw new Error('Invalid backend request')
   }
-  if (path.length > 500 || !ROUTES.some((route) => route.method === method && route.pattern.test(path))) {
+  if (
+    path.length > 500 ||
+    !ROUTES.some((route) => route.method === method && route.pattern.test(path))
+  ) {
     throw new Error('Backend route is not allowed')
   }
   if (method === 'GET' && value.body !== undefined) {
@@ -51,7 +71,8 @@ export async function sendBackendRequest(value: unknown): Promise<BackendRespons
   try {
     const response = await fetch(`${BACKEND_ORIGIN}${request.path}`, {
       method: request.method,
-      headers: request.body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      headers:
+        request.body === undefined ? undefined : { 'Content-Type': 'application/json' },
       body: request.body === undefined ? undefined : JSON.stringify(request.body),
       signal: controller.signal,
     })
