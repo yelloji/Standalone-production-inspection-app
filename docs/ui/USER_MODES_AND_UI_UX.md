@@ -7,13 +7,28 @@ Provide a premium, calm production interface for operators and a powerful protec
 ## Application Navigation
 
 ```text
-Production Run
-Setup & Validation
-Inspection History
-System Status
+Application start
+      |
+      v
+Run Mode (default, operator)
+  - Current production run
+  - Latest completed cycle
+  - Previous inspections
+  - Small protected Configuration entry
+                 |
+                 v
+Configuration Mode (technical)
+  - Setup & Validation
+  - System Status
+  - Return to Run Mode
 ```
 
-Access is role-aware. An operator primarily uses Production Run. Technical/admin users may access Setup & Validation.
+Run Mode and Configuration Mode are separate workspaces, not equal sections in
+one common navigation. Opening the application always enters Run Mode.
+Operators do not see the technical navigation. Entering Configuration Mode
+replaces the Run workspace completely and will use protected technical access
+when authentication is implemented. A persistent, obvious action returns to
+Run Mode.
 
 ## Production Run Mode
 
@@ -74,6 +89,8 @@ Before Run is enabled, the UI checks:
 
 Confirmed future behavior:
 
+- one production cycle represents one complete ordered acquisition, currently
+  16 source images for one disc side;
 - clear pass/alert state;
 - crack count and location visualization;
 - reconstructed-disc overlay;
@@ -101,6 +118,22 @@ Protected technical workspace for:
 Technical settings are grouped by responsibility rather than placed on one large form.
 
 ## Inspection History
+
+For operators this is named **Previous inspections** and remains inside Run
+Mode. It is a secondary action, not a permanent technical navigation section.
+The current/latest cycle remains the primary Run view.
+
+Each history entry is one completed acquisition cycle and owns:
+
+- the 16 original ordered acquisition images;
+- one reconstructed disc;
+- final deduplicated predictions/defects;
+- pass/alert result and disc side;
+- model/pipeline identity and timestamps.
+
+Configuration controls will determine which evidence layers operators may see,
+such as reconstructed image, prediction overlay, defect list, confidence, and
+original source images.
 
 Planned capabilities:
 
@@ -132,12 +165,14 @@ Technical users may open detailed diagnostics. Operators receive only useful pro
 
 ### Application shell
 
-- stable left navigation;
-- top production/station status bar;
-- central task workspace;
-- non-blocking notification/alert area;
-- persistent identity of active pipeline/model;
-- clear distinction between production and technical mode.
+- Run Mode has no technical left navigation;
+- Run Mode shows only production/station status, current run, latest cycle,
+  previous inspections, and a small protected Configuration entry;
+- Configuration Mode has its own stable technical left navigation;
+- Configuration Mode never shows the live Run workspace;
+- both modes retain clear application/backend and active pipeline identity;
+- Configuration Mode has a persistent Return to Run Mode action;
+- non-blocking notification/alert areas remain mode appropriate.
 
 ### Design system
 

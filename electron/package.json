@@ -7,7 +7,8 @@
     "dev": "tsc && wait-on http-get://127.0.0.1:5173 http-get://127.0.0.1:8000/api/v1/health && electron .",
     "build": "tsc",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsc && node --test dist/backend-bridge.test.js"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

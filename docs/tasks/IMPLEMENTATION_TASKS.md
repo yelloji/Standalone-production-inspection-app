@@ -615,7 +615,7 @@ Result recorded on 2026-07-23:
 
 ### Task 15 - Electron/React Shell and Design System
 
-Status: `PLANNED`
+Status: `COMMITTED`
 
 Work:
 
@@ -623,6 +623,64 @@ Work:
 - React routing/application shell;
 - design tokens and reusable accessible components;
 - typed API client and error/state foundation.
+
+Result prepared on 2026-07-23:
+
+- secured the Electron lifecycle with single-instance ownership, exact-origin
+  navigation, denied permission/webview access, packaged developer-tool
+  protection, and HTTPS-only external link handling;
+- exposed a frozen narrow preload contract without Node, filesystem, process,
+  arbitrary IPC, or arbitrary URL access;
+- added a validated loopback backend adapter with explicit versioned
+  route/method allow-listing, bounded timeout, sanitized unavailable state,
+  and executable acceptance/rejection tests;
+- added hash-based routing for Production Run, Setup & Validation, Inspection
+  History, and System Status so the same routes work in development and
+  packaged file loading;
+- replaced the temporary foundation screen with a professional responsive
+  production shell, stable navigation/status regions, station and active
+  pipeline identity, protected technical-mode distinction, and honest
+  not-yet-implemented states;
+- added semantic design tokens and reusable typed icons, status badges,
+  buttons, surfaces, headings, readiness, empty, diagnostic, and safety states;
+- added a typed Task 14 API client with automatic preload/browser transport,
+  stable errors, abort support, health/readiness separation, shared 15-second
+  status refresh, and manual refresh;
+- added React tests for route/readiness behavior and desktop/unavailable
+  transports, plus Electron allow-list security tests;
+- passed frontend/Electron lint, strict type checking, 7 tests, production
+  builds, and a dependency audit with zero known vulnerabilities;
+- passed the full Python dependency, formatting, lint, strict typing, and
+  148-test regression gate;
+- passed Playwright review of all four routes, live local status/refresh,
+  keyboard focus, 1440x900 and 1024x768 layout with no horizontal overflow,
+  zero console errors, and zero page errors;
+- kept Playwright screenshots under ignored local `temp/`; no model, image,
+  database, run artifact, transfer file, or absolute production path is part
+  of the Task 15 source change;
+- the initial implementation remained uncommitted for the agreed hands-on UI
+  review.
+
+User-directed Task 15 revision prepared on 2026-07-24:
+
+- replaced the shared four-section navigation with two completely separate
+  modes so routine operators never see technical navigation;
+- made Run Mode the unconditional application default and limited it to
+  production/station status, current run, latest cycle, Previous inspections,
+  and a small Configuration entry;
+- made Configuration Mode a distinct technical shell with Setup & Validation,
+  System Status, and a persistent Return to Run Mode action;
+- moved operator history into Run Mode under the plain-language name Previous
+  inspections and defined every entry as one completed 16-image acquisition
+  cycle with reconstruction, final defects, result, side, and durable
+  evidence;
+- preserved the safely locked Start action until later tasks prove an approved
+  active pipeline rather than exposing a misleading control;
+- added isolated tests proving default Run Mode has no technical navigation,
+  Configuration Mode has no Run view, and Previous inspections remains inside
+  Run Mode;
+- the user accepted the revised two-mode UI on 2026-07-24, completing the
+  Task 15 review gate.
 
 ### Task 16 - Setup & Validation UI
 
